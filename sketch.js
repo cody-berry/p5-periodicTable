@@ -52,10 +52,15 @@ function draw() {
     // know a lot about undiscovered elements.
 
     let elementSize = 75 // each element is a square. this is the size of it.
+    let padding = 4 // padding for squares.
 
     let yPos = elementSize*3/2 // we are displaying this in the center.
     let xPos = elementSize*3/4 // the xPos to display the period labels on.
     textAlign(CENTER, CENTER)
+
+    // since we'll be facilitating scrolling, we need to scale everything to
+    // the element size. Everything has to depend on that.
+    textSize((75/elementSize)*14)
     for (let period = 1; period <= 7; period += 1) {
         text(period, xPos, yPos)
         yPos += elementSize
@@ -101,26 +106,88 @@ function draw() {
             yPos = period*elementSize
         }
 
+        // now we need to decide the column.
+        let type = element["category"]
+        fill(0, 0, 20)
+        strokeWeight(1)
+        stroke(0, 0, 30)
+        switch (type) {
+            case "diatomic nonmetal":
+                // diatomic nonmetals like Hydrogen are yellow.
+                fill(55, 80, 60)
+                stroke(55, 80, 80)
+                break
+            case "noble gas":
+                // noble gasses like Helium are light brown.
+                fill(20, 80, 40)
+                stroke(20, 80, 60)
+                break
+            case "alkali metal":
+                // alkali metals like Lithium are red.
+                fill(0, 70, 30)
+                stroke(0, 70, 50)
+                break
+            case "alkaline earth metal":
+                // alkaline earth metals like Beryllium are blue.
+                fill(240, 80, 30)
+                stroke(240, 80, 50)
+                break
+            case "metalloid":
+                // metalloids like Boron are dark green.
+                fill(80, 80, 20)
+                stroke(80, 100, 30)
+                break
+            case "polyatomic nonmetal":
+                // polyatomic nonmetals like Carbon are yellow. A little bit
+                // more saturated, darker, and a bit greener than diatomic
+                // nonmetals.
+                fill(60, 85, 55)
+                stroke(60, 85, 75)
+                break
+            case "post-transition metal":
+                // post-transition metals like aluminum are green.
+                fill(100, 60, 40)
+                stroke(100, 60, 60)
+                break
+            case "transition metal":
+                // transition metals like scandium are light blue.
+                fill(220, 80, 35)
+                stroke(220, 80, 45)
+                break
+            case "lanthanide":
+                // lanthanides like Lanthanum are cyan.
+                fill(180, 80, 40)
+                stroke(180, 80, 70)
+                break
+            case "actinide":
+                // actinides like Actinum are teal.
+                fill(160, 80, 40)
+                stroke(160, 80, 70)
+                break
+        }
 
-
-        fill(0, 0, 25, 100)
+        // now we draw the square.
         rectMode(CORNER)
-        square(xPos + 4, yPos + 4, elementSize - 8)
+        square(xPos + padding, yPos + padding, elementSize - padding*2)
     }
 
     // draw the parrellelegram between the last two alkaline earth metals (at
     // least, until the eight alkaline earth metal is releast. It should be
     // element 120, but who knows?)
     // we have an increased y padding (6); otherwise it looks weird
-    fill(0, 0, 25, 100)
-    quad(3*elementSize + 4, 7*elementSize - 6,
-         3*elementSize + 4, 6*elementSize + 6,
-         4*elementSize - 4, 8*elementSize + 6,
-         4*elementSize - 4, 9*elementSize - 6)
-    quad(3*elementSize + 4, 8*elementSize - 6,
-         3*elementSize + 4, 7*elementSize + 6,
-         4*elementSize - 4, 9*elementSize + 6,
-         4*elementSize - 4, 10*elementSize - 6)
+    noStroke()
+    fill(180, 80, 40)
+    stroke(180, 80, 70)
+    quad(3*elementSize + padding, 7*elementSize - padding*1.5,
+         3*elementSize + padding, 6*elementSize + padding*1.5,
+         4*elementSize - padding, 8*elementSize + padding*1.5,
+         4*elementSize - padding, 9*elementSize - padding*1.5)
+    fill(160, 80, 40)
+    stroke(160, 80, 70)
+    quad(3*elementSize + padding, 8*elementSize - padding*1.5,
+         3*elementSize + padding, 7*elementSize + padding*1.5,
+         4*elementSize - padding, 9*elementSize + padding*1.5,
+         4*elementSize - padding, 10*elementSize - padding*1.5)
 
 
     /* debugCorner needs to be last so its z-index is highest */
