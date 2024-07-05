@@ -207,7 +207,14 @@ function draw() {
 
         // now we draw the square.
         rectMode(CORNER)
-        square(xPos + padding, yPos + padding, elementSize - padding*2)
+
+        // we will use all of these later for mouse pressing business.
+        let leftXPos = xPos + padding
+        let topYPos = yPos + padding
+        let squareSize = elementSize - padding*2
+        let rightXPos = leftXPos + squareSize
+        let bottomYPos = topYPos + squareSize
+        square(leftXPos, topYPos, squareSize)
 
 
         // now we draw the chemical symbol
@@ -232,6 +239,16 @@ function draw() {
             // for the text
             text("unknown", xPos + elementSize/2, yPos + 6*elementSize/7)
         }
+
+        // now we check if the mouse is clicking on it.
+        // it is much harder to do this when we don't already know where the
+        // square is. we know right now, so we should take the chance.
+        if (mouseIsPressed &&
+            mouseX > leftXPos && mouseX < rightXPos &&
+            mouseY > topYPos && mouseY < bottomYPos) {
+            selectedElement = z
+            print(selectedElement)
+        }
     }
 
     // draw the parrellelegram between the last two alkaline earth metals (at
@@ -251,6 +268,39 @@ function draw() {
          3*elementSize + padding, 7*elementSize + padding*1.5,
          4*elementSize - padding, 9*elementSize + padding*1.5,
          4*elementSize - padding, 10*elementSize - padding*1.5)
+
+    // now we display the properties of the selected element.
+    // selectedElement is the atomic number of the element. That is the
+    // index in periodicTableJson["elements"], except plus 1.
+    let selectedElementData = periodicTableJSON["elements"][selectedElement - 1]
+
+    // display the summary of the element
+    textSize(15*elementSize/75)
+    fill(0, 0, 100)
+    noStroke()
+
+    // however we will need to do some considerations on what to display.
+    // every 50 characters there should be a newline after the next word.
+    let summary = selectedElementData["summary"]
+    let summaryWithNewlines = ""
+    let index = 0
+    let numNewlines = 0
+    for (let char of summary) {
+        index += 1
+
+        // add the newline for every 50 characters. Only during a space
+        // after a word/sentence.
+        if (index >= 50 && char === " "){
+            summaryWithNewlines += "\n"
+            index = 0
+            numNewlines += 1
+        }
+
+        // otherwise just add the char
+        else summaryWithNewlines += char
+    }
+
+    text(summaryWithNewlines, width/2, (numNewlines*8.5 + 15)*elementSize/75)
 
 
     /* debugCorner needs to be last so its z-index is highest */
