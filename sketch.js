@@ -10,18 +10,52 @@ let variableWidthFont
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 let periodicTableJSON
-
+let elementSize = 85 // each element is a square. this is the size of it.
+let selectedElement = 1
 
 function preload() {
-    font = loadFont('data/consola.ttf')
-    fixedWidthFont = loadFont('data/consola.ttf')
-    variableWidthFont = loadFont('data/meiryo.ttf')
-    periodicTableJSON = loadJSON('data/elementsBowserinator.json')
+    font = loadFont('data/consola.ttf') // the font we'll be using
+    fixedWidthFont = loadFont('data/consola.ttf') // this is the same as "font"
+    variableWidthFont = loadFont('data/meiryo.ttf') // another font option
+    periodicTableJSON = loadJSON('data/elementsBowserinator.json', processData)
+}
+
+function processData(data) {
+    // now we iterate through everything in elements, and we replace each
+    // image with an actual loaded image.
+    let index = 0
+    for (let element of data["elements"]) {
+        data["elements"][index]["bohr_model_image"] =
+            loadImage(data["elements"][index]["bohr_model_image"])
+
+        // for some elements the image isn't found or the image cannot be
+        // accessed.
+        // because we are loading an image, we'll have to use new Image()
+        // because try-catch blocks are synchronous
+        data["elements"][index]["image"]["image"] = new Image()
+        data["elements"][index]["image"]["image"].onload = function() {
+            // Image has loaded successfully
+            data["elements"][index]["image"]["image"] =
+                loadImage(data["elements"][index]["image"]["url"])
+        }
+        data["elements"][index]["image"]["image"].onerror = function() {
+            // in error cases we'll ask the user to go look up the url
+            // themselves
+            data["elements"][index]["image"]["lookup_instructions"] =
+                "Please look up " + data["elements"][index]["image"]["url"] +
+                "yourself. My sketch won't allow me to do it. Thanks :D!"
+        }
+        data["elements"][index]["image"]["image"].src =
+            data["elements"][index]["image"]["url"]
+
+        index += 1
+    }
+    print(data)
 }
 
 
 function setup() {
-    let cnv = createCanvas(1500, 900)
+    let cnv = createCanvas(1500*elementSize/75, 900*elementSize/75)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)
@@ -51,8 +85,7 @@ function draw() {
     // don't think even the experts know, because I believe it's impossible to
     // know a lot about undiscovered elements.
 
-    let elementSize = 75 // each element is a square. this is the size of it.
-    let padding = 4 // padding for squares.
+    let padding = 4*elementSize/75 // padding for squares.
 
     let yPos = elementSize*3/2 // we are displaying this in the center.
     let xPos = elementSize*3/4 // the xPos to display the period labels on.
@@ -60,7 +93,7 @@ function draw() {
 
     // since we'll be facilitating scrolling, we need to scale everything to
     // the element size. Everything has to depend on that.
-    textSize((75/elementSize)*14)
+    textSize((elementSize/75)*14)
     for (let period = 1; period <= 7; period += 1) {
         text(period, xPos, yPos)
         yPos += elementSize
@@ -85,33 +118,39 @@ function draw() {
         xPos = element["group"]*elementSize
         yPos = element["period"]*elementSize
 
+        // get all the variables initialized
+        let chemSymbol = element["symbol"]
+        let category = element["category"]
+        let normalPhase = element["phase"]
+        let z = element["number"]
+        let name = element["name"]
+
         // however, there is an exception with the lanthanides and actinides.
         // the json displays it as period 6 or 7 and group 3, whereas it's
         // actually supposed to be displayed as if it's period 8 or 9 and group
         // 4+.
 
         // atomic numbers 57-71 correspond to lanthanides (groups 4-18).
-        if (element["number"] >= 57 && element["number"] <= 71) {
-            let group = element["number"] - 53
+        if (z >= 57 && z <= 71) {
+            let group = z - 53
             let period = element["period"] + 2
             xPos = group*elementSize
             yPos = period*elementSize
         }
 
         // atomic numbers 89-103 correspond to actinides (groups 4-18).
-        if (element["number"] >= 89 && element["number"] <= 103) {
-            let group = element["number"] - 85
+        if (z >= 89 && z <= 103) {
+            let group = z - 85
             let period = element["period"] + 2
             xPos = group*elementSize
             yPos = period*elementSize
         }
 
         // now we need to decide the column.
-        let type = element["category"]
         fill(0, 0, 20)
-        strokeWeight(1)
+        strokeWeight(elementSize/75)
         stroke(0, 0, 30)
-        switch (type) {
+        switch (category) {
             case "diatomic nonmetal":
                 // diatomic nonmetals like Hydrogen are yellow.
                 fill(55, 80, 60)
@@ -169,6 +208,30 @@ function draw() {
         // now we draw the square.
         rectMode(CORNER)
         square(xPos + padding, yPos + padding, elementSize - padding*2)
+
+
+        // now we draw the chemical symbol
+        fill(0, 0, 100)
+        textSize(25*(elementSize/75))
+        text(chemSymbol, xPos + elementSize/2, yPos + 3*elementSize/7)
+
+        // then the atomic number
+        textSize(10*(elementSize/75))
+        text(z, xPos + elementSize/2, yPos + elementSize/7)
+
+        // then the actual name
+        text(name, xPos + elementSize/2, yPos + 5*elementSize/7)
+
+        // and then the chemical group
+        textSize(5.8*(elementSize/75))
+        if (category.indexOf("unknown") === -1) {
+            // display the full category only if it isn't a hypothesis
+            text(category, xPos + elementSize/2, yPos + 6*elementSize/7)
+        } else {
+            // if it does contain unknown then it'll definitely be too large
+            // for the text
+            text("unknown", xPos + elementSize/2, yPos + 6*elementSize/7)
+        }
     }
 
     // draw the parrellelegram between the last two alkaline earth metals (at
