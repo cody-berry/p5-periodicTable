@@ -24,33 +24,20 @@ function processData(data) {
     // now we iterate through everything in elements, and we replace each
     // image with an actual loaded image.
     let index = 0
-    for (let element of data["elements"]) {
-        data["elements"][index]["bohr_model_image"] =
-            loadImage(data["elements"][index]["bohr_model_image"])
+    let processedData = data
+    try {
+        for (let element of data["elements"]) {
+            processedData["elements"][index]["bohr_model_image"] =
+                loadImage(data["elements"][index]["bohr_model_image"])
 
-        // for some elements the image isn't found or the image cannot be
-        // accessed.
-        // because we are loading an image, we'll have to use new Image()
-        // because try-catch blocks are synchronous
-        data["elements"][index]["image"]["image"] = new Image()
-        data["elements"][index]["image"]["image"].onload = function() {
-            // Image has loaded successfully
-            data["elements"][index]["image"]["image"] =
+            processedData["elements"][index]["image"]["image"] =
                 loadImage(data["elements"][index]["image"]["url"])
-        }
-        data["elements"][index]["image"]["image"].onerror = function() {
-            // in error cases we'll ask the user to go look up the url
-            // themselves
-            data["elements"][index]["image"]["lookup_instructions"] =
-                "Please look up " + data["elements"][index]["image"]["url"] +
-                "yourself. My sketch won't allow me to do it. Thanks :D!"
-        }
-        data["elements"][index]["image"]["image"].src =
-            data["elements"][index]["image"]["url"]
 
-        index += 1
-    }
-    print(data)
+            index += 1
+        }
+    } catch (error) {return processedData}
+    print(processedData)
+    return processedData
 }
 
 
@@ -284,23 +271,31 @@ function draw() {
     let summary = selectedElementData["summary"]
     let summaryWithNewlines = ""
     let index = 0
-    let numNewlines = 0
     for (let char of summary) {
         index += 1
 
-        // add the newline for every 50 characters. Only during a space
+        // add the newline for every 90 characters. Only during a space
         // after a word/sentence.
-        if (index >= 50 && char === " "){
+        if (index >= 90 && char === " "){
             summaryWithNewlines += "\n"
             index = 0
-            numNewlines += 1
         }
 
         // otherwise just add the char
         else summaryWithNewlines += char
     }
 
-    text(summaryWithNewlines, width/2, (numNewlines*8.5 + 15)*elementSize/75)
+    textAlign(LEFT, TOP)
+    text(summaryWithNewlines, elementSize*3, 0)
+    textStyle(NORMAL)
+
+    // now we display the example image of the element
+    try {
+        let exampleImage = selectedElementData["image"]["image"]
+        image(exampleImage, elementSize * 4, elementSize * 2,
+              exampleImage.naturalWidth, exampleImage.naturalHeight)
+    } catch (error) {}
+    image(selectedElementData["bohr_model_image"], elementSize*4, elementSize*2)
 
 
     /* debugCorner needs to be last so its z-index is highest */
