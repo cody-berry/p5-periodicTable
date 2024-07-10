@@ -1,5 +1,5 @@
 /**
- *  @author 
+ *  @author
  *  @date 2023.
  *
  */
@@ -12,6 +12,7 @@ let debugCorner /* output debug text in the bottom left corner of the canvas */
 let periodicTableJSON
 let elementSize = 85 // each element is a square. this is the size of it.
 let selectedElement = 1
+let elementImages = {} // the names are the keys and the images are the values.
 
 function preload() {
     font = loadFont('data/consola.ttf') // the font we'll be using
@@ -21,23 +22,28 @@ function preload() {
 }
 
 function processData(data) {
-    // now we iterate through everything in elements, and we replace each
-    // image with an actual loaded image.
-    let index = 0
-    let processedData = data
-    try {
-        for (let element of data["elements"]) {
-            processedData["elements"][index]["bohr_model_image"] =
-                loadImage(data["elements"][index]["bohr_model_image"])
+    // there are 18 images available from periods 1-3 (I know I haven't
+    // missed any), and we should download them to elementImages
+    for (let i = 0; i < 18; i++) {
+        let elementData = data["elements"][i]
+        let name = elementData["name"]
 
-            processedData["elements"][index]["image"]["image"] =
-                loadImage(data["elements"][index]["image"]["url"])
+        // generally the element has a jpg file. But carbon's image is png,
+        // so we have to handle that.
+        if (name === "Carbon")
+            elementImages[name] = loadImage(`elementImages/${name}.png`)
+        else
+            elementImages[name] = loadImage(`elementImages/${name}.jpg`)
+    }
 
-            index += 1
-        }
-    } catch (error) {return processedData}
-    print(processedData)
-    return processedData
+    // now we go to the business of doing the bohr model image. it's in the
+    // json already for all 118 elements.
+    for (let i = 0; i < 118; i++) {
+        let elementData = data["elements"][i]
+
+        // "bohr_model_image" is a url. It's supposed to be an image.
+        elementData["bohr_model_image"] = loadImage(elementData["bohr_model_image"])
+    }
 }
 
 
@@ -246,15 +252,15 @@ function draw() {
     fill(180, 80, 40)
     stroke(180, 80, 70)
     quad(3*elementSize + padding, 7*elementSize - padding*1.5,
-         3*elementSize + padding, 6*elementSize + padding*1.5,
-         4*elementSize - padding, 8*elementSize + padding*1.5,
-         4*elementSize - padding, 9*elementSize - padding*1.5)
+        3*elementSize + padding, 6*elementSize + padding*1.5,
+        4*elementSize - padding, 8*elementSize + padding*1.5,
+        4*elementSize - padding, 9*elementSize - padding*1.5)
     fill(160, 80, 40)
     stroke(160, 80, 70)
     quad(3*elementSize + padding, 8*elementSize - padding*1.5,
-         3*elementSize + padding, 7*elementSize + padding*1.5,
-         4*elementSize - padding, 9*elementSize + padding*1.5,
-         4*elementSize - padding, 10*elementSize - padding*1.5)
+        3*elementSize + padding, 7*elementSize + padding*1.5,
+        4*elementSize - padding, 9*elementSize + padding*1.5,
+        4*elementSize - padding, 10*elementSize - padding*1.5)
 
     // now we display the properties of the selected element.
     // selectedElement is the atomic number of the element. That is the
@@ -267,7 +273,7 @@ function draw() {
     noStroke()
 
     // however we will need to do some considerations on what to display.
-    // every 50 characters there should be a newline after the next word.
+    // every 90 characters there should be a newline after the next word.
     let summary = selectedElementData["summary"]
     let summaryWithNewlines = ""
     let index = 0
@@ -290,12 +296,32 @@ function draw() {
     textStyle(NORMAL)
 
     // now we display the example image of the element
-    try {
-        let exampleImage = selectedElementData["image"]["image"]
-        image(exampleImage, elementSize * 4, elementSize * 2,
-              exampleImage.naturalWidth, exampleImage.naturalHeight)
-    } catch (error) {}
-    image(selectedElementData["bohr_model_image"], elementSize*4, elementSize*2)
+    let exampleImage = elementImages[selectedElementData["name"]]
+    image(selectedElementData["bohr_model_image"], elementSize*4, elementSize*1.5,
+        elementSize*2, elementSize*2)
+    image(exampleImage, elementSize*6 + 1, elementSize*1.5,
+          elementSize*2, elementSize*2)
+
+    // and we display the description of the element image.
+    // however we will need to do some considerations on what to display.
+    // every 40 characters there should be a newline after the next word.
+    let imageTitle = "Right image title: " + selectedElementData["image"]["title"]
+    let imageTitleWithNewlines = ""
+    index = 0
+    for (let char of imageTitle) {
+        index += 1
+
+        // add the newline for every 45 characters. Only during a space
+        // after a word/sentence.
+        if (index >= 45 && char === " "){
+            imageTitleWithNewlines += "\n"
+            index = 0
+        }
+
+        // otherwise just add the char
+        else imageTitleWithNewlines += char
+    }
+    text(imageTitleWithNewlines, elementSize*8.1, elementSize*1.5)
 
 
     /* debugCorner needs to be last so its z-index is highest */
