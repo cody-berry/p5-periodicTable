@@ -22,9 +22,9 @@ function preload() {
 }
 
 function processData(data) {
-    // there are 18 images available from periods 1-3 (I know I haven't
+    // there are 18 images available from periods 1-4 (I know I haven't
     // missed any), and we should download them to elementImages
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 54; i++) {
         let elementData = data["elements"][i]
         let name = elementData["name"]
 
@@ -313,7 +313,7 @@ function draw() {
 
         // add the newline for every 45 characters. Only during a space
         // after a word/sentence.
-        if (index >= 45 && char === " "){
+        if (index >= 40 && char === " "){
             imageTitleWithNewlines += "\n"
             index = 0
         }
