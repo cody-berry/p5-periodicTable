@@ -24,13 +24,13 @@ function preload() {
 function processData(data) {
     // there are 18 images available from periods 1-4 (I know I haven't
     // missed any), and we should download them to elementImages
-    for (let i = 0; i < 54; i++) {
+    for (let i = 0; i < 86; i++) {
         let elementData = data["elements"][i]
         let name = elementData["name"]
 
-        // generally the element has a jpg file. But carbon's image is png,
-        // so we have to handle that.
-        if (name === "Carbon")
+        // generally the element has a jpg file. But carbon's and
+        // promethium's image is png, so we have to handle that.
+        if (name === "Carbon" || name === "Promethium")
             elementImages[name] = loadImage(`elementImages/${name}.png`)
         else
             elementImages[name] = loadImage(`elementImages/${name}.jpg`)
