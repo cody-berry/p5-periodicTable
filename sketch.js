@@ -22,18 +22,39 @@ function preload() {
 }
 
 function processData(data) {
-    // there are 18 images available from periods 1-4 (I know I haven't
+    // there are 118 images available from all elements (I know I haven't
     // missed any), and we should download them to elementImages
-    for (let i = 0; i < 86; i++) {
+    for (let i = 0; i < 118; i++) {
         let elementData = data["elements"][i]
         let name = elementData["name"]
 
-        // generally the element has a jpg file. But carbon's and
-        // promethium's image is png, so we have to handle that.
-        if (name === "Carbon" || name === "Promethium")
+        // generally the element has a jpg file. But a few images are pngs.
+        let pngImageNames = [
+            "Tennessine",
+            "Seaborgium",
+            "Roentgenium",
+            "Promethium",
+            "Oganesson",
+            "Nihonium",
+            "Moscovium",
+            "Meitnerium",
+            "Livermorium",
+            "Hassium",
+            "Flerovium",
+            "Dubnium",
+            "Darmstadtium",
+            "Copernicium",
+            "Carbon",
+            "Bohrium",
+            "Actinium"
+        ]
+        if (pngImageNames.includes(name)) {
+            print("PNG", name)
             elementImages[name] = loadImage(`elementImages/${name}.png`)
-        else
+        } else {
+            print("JPG", name)
             elementImages[name] = loadImage(`elementImages/${name}.jpg`)
+        }
     }
 
     // now we go to the business of doing the bohr model image. it's in the
@@ -48,7 +69,7 @@ function processData(data) {
 
 
 function setup() {
-    let cnv = createCanvas(1500*elementSize/75, 900*elementSize/75)
+    let cnv = createCanvas(1500*elementSize/75, 1500*elementSize/75)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)
@@ -273,22 +294,26 @@ function draw() {
     noStroke()
 
     // however we will need to do some considerations on what to display.
-    // every 90 characters there should be a newline after the next word.
+    // every 90 characters there should be a newline after the previous word.
     let summary = selectedElementData["summary"]
     let summaryWithNewlines = ""
-    let index = 0
+    let charsSinceLastNewline = 0
     for (let char of summary) {
-        index += 1
+        charsSinceLastNewline += 1
 
-        // add the newline for every 90 characters. Only during a space
-        // after a word/sentence.
-        if (index >= 90 && char === " "){
-            summaryWithNewlines += "\n"
-            index = 0
+        // add a newline at the beginning of the last word for every 92
+        // characters. in other words, replace the last space with a newline.
+        if (charsSinceLastNewline === 92){
+            let lastIndex = summaryWithNewlines.lastIndexOf(" ")
+            summaryWithNewlines =
+                summaryWithNewlines.substring(0, lastIndex) + "\n" +
+                summaryWithNewlines.substring(lastIndex + 1)
+
+            charsSinceLastNewline = summaryWithNewlines.length - lastIndex
         }
 
-        // otherwise just add the char
-        else summaryWithNewlines += char
+        // we add the char
+        summaryWithNewlines += char
     }
 
     textAlign(LEFT, TOP)
@@ -304,30 +329,71 @@ function draw() {
 
     // and we display the description of the element image.
     // however we will need to do some considerations on what to display.
-    // every 40 characters there should be a newline after the next word.
+    // every 50 characters there should be a newline after the previous  word.
     let imageTitle = "Right image title: " + selectedElementData["image"]["title"]
     let imageTitleWithNewlines = ""
-    index = 0
+    charsSinceLastNewline = 0
     for (let char of imageTitle) {
-        index += 1
+        charsSinceLastNewline += 1
 
-        // add the newline for every 45 characters. Only during a space
+        // add the newline for every 50 characters. Only during a space
         // after a word/sentence.
-        if (index >= 40 && char === " "){
-            imageTitleWithNewlines += "\n"
-            index = 0
+        if (charsSinceLastNewline >= 50){
+            let lastIndex = imageTitleWithNewlines.lastIndexOf(" ")
+            imageTitleWithNewlines =
+                imageTitleWithNewlines.substring(0, lastIndex) + "\n" +
+                imageTitleWithNewlines.substring(lastIndex + 1)
+
+            charsSinceLastNewline = imageTitleWithNewlines.length - lastIndex
         }
 
-        // otherwise just add the char
-        else imageTitleWithNewlines += char
+        // we add the char
+        imageTitleWithNewlines += char
     }
     text(imageTitleWithNewlines, elementSize*8.1, elementSize*1.5)
 
+    // we've finished with the periodic table and the non-detailed
+    // description of the selected element.
+    // below that we're going to add a detailed description of the selected
+    // element.
+    stroke(0, 0, 100)
+    strokeWeight(1)
+
+    // we add 0.5 to the xPos and yPos because a strokeWeight of 1 actually
+    // means a thickness of 0.5, so if we do this, a 1xwidth strand of
+    // 100%-opacity white pixels are made, whereas if we don't, a 2xwidth
+    // strand of 50%-opacity white pixels are made (because the line spans
+    // -0.5 to 0.5, and a fraction of a pixel means a translucent pixel).
+    line(0, elementSize*10 + 4.5, width, elementSize*10 + 4.5)
+    line(0, elementSize*10 + 8.5, width, elementSize*10 + 8.5)
+
+    // now we display the information for the following things: appearance,
+    // average atomic mass, boiling point, melting point, electron
+    // configuration, and ionization energy of the first electron.
+    textSize(15*elementSize/75)
+    fill(0, 0, 100)
+    noStroke()
+    let appearanceYPos = elementSize*10.2
+    let averageAtomicMassYPos = appearanceYPos + textAscent() + textDescent() + padding
+    let boilingPointYPos = averageAtomicMassYPos + textAscent() + textDescent() + padding
+    let meltingPointYPos = boilingPointYPos + textAscent() + textDescent() + padding
+    let electronConfigurationYPos = meltingPointYPos + textAscent() + textDescent() + padding
+    let ionizationEnergyFirstElectronYPos = electronConfigurationYPos + textAscent() + textDescent() + padding
+
+    text("Appearance: " + selectedElementData["appearance"], padding, appearanceYPos)
+    text("Average atomic mass: " + selectedElementData["atomic_mass"], padding, averageAtomicMassYPos)
+    text("Boiling point: " + selectedElementData["boil"] + "º K", padding, boilingPointYPos)
+    text("Melting point: " + selectedElementData["melt"] + "º K", padding, meltingPointYPos)
+    text("Electron configuration: " + selectedElementData["electron_configuration_semantic"], padding, electronConfigurationYPos)
+    text("Ionization energy of one electron: " + selectedElementData["ionization_energies"][0] + "eV", padding, ionizationEnergyFirstElectronYPos)
+
+
+    noStroke()
 
     /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 2)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
-    debugCorner.showBottom()
+    // debugCorner.setText(`frameCount: ${frameCount}`, 2)
+    // debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
+    // debugCorner.showBottom()
 
     if (frameCount > 36000)
         noLoop()
