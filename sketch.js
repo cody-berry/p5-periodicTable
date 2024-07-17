@@ -22,9 +22,9 @@ function preload() {
 }
 
 function processData(data) {
-    // there are 118 images available from all elements (I know I haven't
-    // missed any), and we should download them to elementImages
-    for (let i = 0; i < 118; i++) {
+    // there are 119 images available from all elements (I know I haven't
+    // missed any), and we should download them to elementImages.
+    for (let i = 0; i < 119; i++) {
         let elementData = data["elements"][i]
         let name = elementData["name"]
 
@@ -58,8 +58,8 @@ function processData(data) {
     }
 
     // now we go to the business of doing the bohr model image. it's in the
-    // json already for all 118 elements.
-    for (let i = 0; i < 118; i++) {
+    // json already for all 119 elements.
+    for (let i = 0; i < 119; i++) {
         let elementData = data["elements"][i]
 
         // "bohr_model_image" is a url. It's supposed to be an image.
@@ -117,7 +117,7 @@ function draw() {
     // displaying them on varying yPoses.
     // we're representing on which square on the virtual grid we're
     // displaying them on.
-    let yPoses = [1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 1]
+    let yPoses = [1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 1]
     xPos = elementSize*3/2
     for (let group = 1; group <= 18; group += 1) {
         text(group, xPos, (yPoses[group - 1] - 1/4)*elementSize)
@@ -125,6 +125,7 @@ function draw() {
     }
 
     // now we display a square for each element
+    let i = 0
     for (let element of periodicTableJSON["elements"]) {
         // xPos and yPos represent the top-left corner of the grey square
         // note: there is a padding of 4, making for a grey square that is
@@ -254,13 +255,15 @@ function draw() {
             text("unknown", xPos + elementSize/2, yPos + 6*elementSize/7)
         }
 
+        i++
+
         // now we check if the mouse is clicking on it.
         // it is much harder to do this when we don't already know where the
         // square is. we know right now, so we should take the chance.
         if (mouseIsPressed &&
             mouseX > leftXPos && mouseX < rightXPos &&
             mouseY > topYPos && mouseY < bottomYPos) {
-            selectedElement = z
+            selectedElement = i
             print(selectedElement)
         }
     }
@@ -285,7 +288,7 @@ function draw() {
 
     // now we display the properties of the selected element.
     // selectedElement is the atomic number of the element. That is the
-    // index in periodicTableJson["elements"], except plus 1.
+    // index in periodicTableJson["elements"], except minus 1.
     let selectedElementData = periodicTableJSON["elements"][selectedElement - 1]
 
     // display the summary of the element
@@ -294,16 +297,16 @@ function draw() {
     noStroke()
 
     // however we will need to do some considerations on what to display.
-    // every 90 characters there should be a newline after the previous word.
+    // every 110 characters there should be a newline after the previous word.
     let summary = selectedElementData["summary"]
     let summaryWithNewlines = ""
     let charsSinceLastNewline = 0
     for (let char of summary) {
         charsSinceLastNewline += 1
 
-        // add a newline at the beginning of the last word for every 92
+        // add a newline at the beginning of the last word for every 110
         // characters. in other words, replace the last space with a newline.
-        if (charsSinceLastNewline === 92){
+        if (charsSinceLastNewline === 110) {
             let lastIndex = summaryWithNewlines.lastIndexOf(" ")
             summaryWithNewlines =
                 summaryWithNewlines.substring(0, lastIndex) + "\n" +

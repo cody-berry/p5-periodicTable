@@ -42,6 +42,48 @@
         "attribution": "User:Jurii, CC BY 3.0 <https://creativecommons.org/licenses/by/3.0>, via Wikimedia Commons, source: https://images-of-elements.com/hydrogen.php"
       },
       "block": "s"
+    }, {
+      "name": "Deuterium",
+      "appearance": "colorless gas",
+      "atomic_mass": 2.016,
+      "boil": null,
+      "category": "diatomic nonmetal",
+      "density": null,
+      "discovered_by": "Henry Cavendish",
+      "melt": null,
+      "molar_heat": null,
+      "named_by": "Antoine Lavoisier",
+      "number": 1,
+      "period": 1,
+      "group": 2,
+      "phase": "Gas",
+      "source": "https://en.wikipedia.org/wiki/Hydrogen",
+      "bohr_model_image": "https://storage.googleapis.com/search-ar-edu/periodic-table/element_001_hydrogen/element_001_hydrogen_srp_th.png",
+      "bohr_model_3d": "https://storage.googleapis.com/search-ar-edu/periodic-table/element_001_hydrogen/element_001_hydrogen.glb",
+      "spectral_img": "https://en.wikipedia.org/wiki/File:Hydrogen_Spectra.jpg",
+      "summary": "Deuterium, also known as heavy hydrogen, has twice the mass of hydrogen due to the extra neutron. Deuterium is about 6000 times less common than hydrogen. Deuterium functions about the same as hydrogen, except for the extra neutron making it heavier.",
+      "symbol": "D",
+      "xpos": 1,
+      "ypos": 1,
+      "wxpos": 1,
+      "wypos": 1,
+      "shells": [
+        1
+      ],
+      "electron_configuration": "1s1",
+      "electron_configuration_semantic": "1s1",
+      "electron_affinity": 72.769,
+      "electronegativity_pauling": 2.2,
+      "ionization_energies": [
+        1312
+      ],
+      "cpk-hex": "ffffff",
+      "image": {
+        "title": "Vial of glowing ultrapure deuterium, D2. Original size in cm: 1 x 5",
+        "url": "https://images-of-elements.com/deuterium.jpg",
+        "attribution": "User:Jurii, CC BY 3.0 <https://creativecommons.org/licenses/by/3.0>, via Wikimedia Commons, source: https://images-of-elements.com/hydrogen.php"
+      },
+      "block": "s"
     },
     {
       "name": "Helium",
