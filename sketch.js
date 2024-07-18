@@ -390,8 +390,41 @@ function draw() {
     text("Electron configuration: " + selectedElementData["electron_configuration_semantic"], padding, electronConfigurationYPos)
     text("Ionization energy of one electron: " + selectedElementData["ionization_energies"][0] + "eV", padding, ionizationEnergyFirstElectronYPos)
 
+    // at the top-left we have the search box.
+    // we'll be situating this such that it touches the corner.
+    fill(0, 0, 25)
+    stroke(0, 0, 50)
+    strokeWeight(1)
+    textSize(20*(elementSize/75))
+    rect(0, 0, elementSize*2.5, textAscent() + textDescent())
 
-    noStroke()
+    // then display a magnifying glass.
+    // a magnifying glass is made of a line and an unfilled circle.
+    noFill()
+
+    // the line's bottom-left co-ordinate is slightly above and to the right of
+    // the bottom-left corner of the textbox.
+    let bottomLeftXPos = elementSize*0.05
+    let bottomLeftYPos = textAscent() + textDescent() - elementSize*0.05
+
+    // the circle's center co-ordinate is more above and to the right of the
+    // bottom-left corner of the textbox.
+    let circleCenterXPos = elementSize*0.15
+    let circleCenterYPos = textAscent() + textDescent() - elementSize*0.15
+    let circleDiameter = elementSize*0.1
+
+    // if we want to make the magnifying glass line connect with the circle,
+    // we'd have to calculate the position of the bottom-left point of the
+    // circle is.
+    // luckily, I know well how to calculate that. the sine and cosine of 45º
+    // are both (√2)/2.
+    let connectionPointXPos = circleCenterXPos - circleDiameter/2*((sqrt(2))/2)
+    let connectionPointYPos = circleCenterYPos + circleDiameter/2*((sqrt(2))/2)
+
+    strokeWeight(1)
+    line(bottomLeftXPos, bottomLeftYPos, connectionPointXPos, connectionPointYPos)
+    circle(circleCenterXPos, circleCenterYPos, circleDiameter)
+
 
     /* debugCorner needs to be last so its z-index is highest */
     // debugCorner.setText(`frameCount: ${frameCount}`, 2)
@@ -400,6 +433,8 @@ function draw() {
 
     if (frameCount > 36000)
         noLoop()
+
+    noStroke()
 }
 
 
