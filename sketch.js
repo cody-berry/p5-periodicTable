@@ -14,6 +14,16 @@ let elementSize = 85 // each element is a square. this is the size of it.
 let selectedElement = 1
 let elementImages = {} // the names are the keys and the images are the values.
 
+// in the search bar there is a cursor as you would expect from a text bar
+let searchCursor = 0
+let textInSearchBar = "" // this is the actual text inside
+
+// The cursor displays only half a second every second.
+// Without this variable, we sometimes wouldn't be able to see our cursor
+// when moving. This represents the base milliseconds that we offset the
+// cursor display by.
+let cursorDisplayBaseMillis = 0
+
 function preload() {
     font = loadFont('data/consola.ttf') // the font we'll be using
     fixedWidthFont = loadFont('data/consola.ttf') // this is the same as "font"
@@ -395,7 +405,7 @@ function draw() {
     fill(0, 0, 25)
     stroke(0, 0, 50)
     strokeWeight(1)
-    textSize(20*(elementSize/75))
+    textSize(16*(elementSize/75))
     rect(0, 0, elementSize*2.5, textAscent() + textDescent())
 
     // then display a magnifying glass.
@@ -409,9 +419,9 @@ function draw() {
 
     // the circle's center co-ordinate is more above and to the right of the
     // bottom-left corner of the textbox.
-    let circleCenterXPos = elementSize*0.15
-    let circleCenterYPos = textAscent() + textDescent() - elementSize*0.15
-    let circleDiameter = elementSize*0.1
+    let circleCenterXPos = elementSize*0.13
+    let circleCenterYPos = textAscent() + textDescent() - elementSize*0.13
+    let circleDiameter = elementSize*0.08
 
     // if we want to make the magnifying glass line connect with the circle,
     // we'd have to calculate the position of the bottom-left point of the
@@ -421,9 +431,25 @@ function draw() {
     let connectionPointXPos = circleCenterXPos - circleDiameter/2*((sqrt(2))/2)
     let connectionPointYPos = circleCenterYPos + circleDiameter/2*((sqrt(2))/2)
 
-    strokeWeight(1)
+    strokeWeight(elementSize/75)
     line(bottomLeftXPos, bottomLeftYPos, connectionPointXPos, connectionPointYPos)
     circle(circleCenterXPos, circleCenterYPos, circleDiameter)
+
+    // the magnifying glass takes up elementSize*0.2 space, including the
+    // padding. we should position the text accordingly.
+    noStroke()
+    fill(0, 0, 80)
+    let textBeginningXPos = elementSize*0.2
+    text(textInSearchBar, textBeginningXPos, elementSize/75)
+
+    // then we draw the cursor
+    if ((millis() - cursorDisplayBaseMillis) % 1000 < 500) {
+        stroke(0, 0, 100)
+        strokeWeight(1)
+        let cursorXPos = textBeginningXPos + textWidth(" ") * searchCursor - 0.5
+        line(cursorXPos, 3 * elementSize / 75,
+            cursorXPos, textAscent() + textDescent() - 3 * elementSize / 75)
+    }
 
 
     /* debugCorner needs to be last so its z-index is highest */
@@ -439,6 +465,8 @@ function draw() {
 
 
 function keyPressed() {
+
+
     /* stop sketch */
     if (keyCode === 97) { /* numpad 1 */
         noLoop()
@@ -449,6 +477,41 @@ function keyPressed() {
     if (key === '`') { /* toggle debug corner visibility */
         debugCorner.visible = !debugCorner.visible
         console.log(`debugCorner visibility set to ${debugCorner.visible}`)
+    }
+
+    // we can type in the search bar, any letter
+    if (["a", "b", "c", "d", "e", "f", "g",
+         "h", "i", "j", "k", "l", "m", "n",
+         "o", "p", "q", "r", "s", "t",
+         "u", "v", "w", "x", "y", "z"]
+        .includes(key.toLowerCase()) &&
+        textInSearchBar.length < 18) {
+        // insert a letter into the search bar
+        textInSearchBar =
+            textInSearchBar.substring(0, searchCursor) +
+            key +
+            textInSearchBar.substring(searchCursor)
+
+        // at the end we're always moving the cursor to the right
+        searchCursor += 1
+
+        cursorDisplayBaseMillis = millis()
+    }
+    // or delete
+    if (keyCode === BACKSPACE && textInSearchBar.length > 0) {
+        searchCursor -= 1
+        textInSearchBar =
+            textInSearchBar.substring(0, searchCursor) +
+            textInSearchBar.substring(searchCursor + 1)
+        cursorDisplayBaseMillis = millis()
+    }
+    // or go left/right
+    if (keyCode === LEFT_ARROW && searchCursor > 0) {
+        searchCursor -= 1
+        cursorDisplayBaseMillis = millis()
+    } if (keyCode === RIGHT_ARROW && searchCursor < textInSearchBar.length) {
+        searchCursor += 1
+        cursorDisplayBaseMillis = millis()
     }
 }
 
