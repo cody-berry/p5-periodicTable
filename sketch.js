@@ -276,10 +276,27 @@ function draw() {
             selectedElement = i
             print(selectedElement)
         }
+
+        // we want to darken the element if the name doesn't include what's
+        // in the search bar
+        if (!name.toLowerCase().includes(textInSearchBar.toLowerCase()) &&
+            textInSearchBar.length > 0) {
+            fill(0, 0, 0, 50)
+            noStroke()
+            rect(leftXPos, topYPos, rightXPos - leftXPos, bottomYPos - topYPos)
+        }
+        // otherwise we lighten it
+        if (name.toLowerCase().includes(textInSearchBar.toLowerCase()) &&
+            textInSearchBar.length > 0) {
+            fill(0, 0, 100, 25)
+            stroke(0, 0, 100, 60)
+            strokeWeight(1)
+            rect(leftXPos, topYPos, rightXPos - leftXPos, bottomYPos - topYPos)
+        }
     }
 
     // draw the parrellelegram between the last two alkaline earth metals (at
-    // least, until the eight alkaline earth metal is releast. It should be
+    // least, until the eight alkaline earth metal is released. It should be
     // element 120, but who knows?)
     // we have an increased y padding (6); otherwise it looks weird
     noStroke()
@@ -295,6 +312,8 @@ function draw() {
         3*elementSize + padding, 7*elementSize + padding*1.5,
         4*elementSize - padding, 9*elementSize + padding*1.5,
         4*elementSize - padding, 10*elementSize - padding*1.5)
+
+
 
     // now we display the properties of the selected element.
     // selectedElement is the atomic number of the element. That is the
