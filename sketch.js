@@ -79,7 +79,7 @@ function processData(data) {
 
 
 function setup() {
-    let cnv = createCanvas(1500*elementSize/75, 1500*elementSize/75)
+    let cnv = createCanvas(1500*elementSize/75, 900*elementSize/75)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)
@@ -136,6 +136,12 @@ function draw() {
 
     // now we display a square for each element
     let i = 0
+
+    // this is going to be more complex than you think it is. it's also when
+    // we check for whether the element is lightened up, and we want to keep
+    // track of that.
+    let matches = []
+
     for (let element of periodicTableJSON["elements"]) {
         // xPos and yPos represent the top-left corner of the grey square
         // note: there is a padding of 4, making for a grey square that is
@@ -171,7 +177,7 @@ function draw() {
             yPos = period*elementSize
         }
 
-        // now we need to decide the column.
+        // now we need to decide the color
         fill(0, 0, 20)
         strokeWeight(elementSize/75)
         stroke(0, 0, 30)
@@ -282,8 +288,11 @@ function draw() {
         if (!name.toLowerCase().includes(textInSearchBar.toLowerCase()) &&
             textInSearchBar.length > 0) {
             fill(0, 0, 0, 50)
-            noStroke()
-            rect(leftXPos, topYPos, rightXPos - leftXPos, bottomYPos - topYPos)
+            stroke(0, 0, 0, 50)
+            strokeWeight(1)
+
+            // we neatly already have all the co-ordinates for the square
+            square(leftXPos, topYPos, squareSize)
         }
         // otherwise we lighten it
         if (name.toLowerCase().includes(textInSearchBar.toLowerCase()) &&
@@ -291,11 +300,14 @@ function draw() {
             fill(0, 0, 100, 25)
             stroke(0, 0, 100, 60)
             strokeWeight(1)
-            rect(leftXPos, topYPos, rightXPos - leftXPos, bottomYPos - topYPos)
+            square(leftXPos, topYPos, squareSize)
+
+            // and add it to the match list
+            matches.push(i)
         }
     }
 
-    // draw the parrellelegram between the last two alkaline earth metals (at
+    // draw the parallelegram between the last two alkaline earth metals (at
     // least, until the eight alkaline earth metal is released. It should be
     // element 120, but who knows?)
     // we have an increased y padding (6); otherwise it looks weird
@@ -419,7 +431,140 @@ function draw() {
     text("Electron configuration: " + selectedElementData["electron_configuration_semantic"], padding, electronConfigurationYPos)
     text("Ionization energy of one electron: " + selectedElementData["ionization_energies"][0] + "eV", padding, ionizationEnergyFirstElectronYPos)
 
-    // at the top-left we have the search box.
+    // however, we're erasing all this and drawing a new screen if there's
+    // only 1 match.
+    if (matches.length === 1) {
+        background(234, 34, 24)
+
+        // get all the needed data for the element
+        let selectedElementData = periodicTableJSON["elements"][matches[0] - 1]
+
+        let name = selectedElementData["name"]
+        let appearance = selectedElementData["appearance"]
+        let averageMass = selectedElementData["atomic_mass"]
+        let boilPoint = selectedElementData["boil"]
+        let category = selectedElementData["category"]
+        let density = selectedElementData["density"]
+        let meltPoint = selectedElementData["melt"]
+        let molarHeat = selectedElementData["molar_heat"]
+        let z = selectedElementData["number"]
+        let period = selectedElementData["period"]
+        let group = selectedElementData["group"]
+        let normalState = selectedElementData["phase"]
+        let bohrModelImage = selectedElementData["bohr_model_image"]
+        let summary = selectedElementData["summary"]
+        let chemSymbol = selectedElementData["symbol"]
+        let electronConfig = selectedElementData["electron_configuration_semantic"]
+        let electronAffinity = selectedElementData["electron_affinity"]
+        let electronegativity = selectedElementData["electronegativity_pauling"]
+        let ionizationEnergies = selectedElementData["ionization_energies"]
+        let image = selectedElementData["image"]
+        let block = selectedElementData["block"]
+
+        // draw a big version of the element square at the bottom-left.
+        // now we need to decide the color
+        fill(0, 0, 20)
+        strokeWeight(elementSize/75)
+        stroke(0, 0, 30)
+        switch (category) {
+            case "diatomic nonmetal":
+                // diatomic nonmetals like Hydrogen are yellow.
+                fill(55, 80, 60)
+                stroke(55, 80, 80)
+                break
+            case "noble gas":
+                // noble gasses like Helium are light brown.
+                fill(20, 80, 40)
+                stroke(20, 80, 60)
+                break
+            case "alkali metal":
+                // alkali metals like Lithium are red.
+                fill(0, 70, 30)
+                stroke(0, 70, 50)
+                break
+            case "alkaline earth metal":
+                // alkaline earth metals like Beryllium are blue.
+                fill(240, 80, 30)
+                stroke(240, 80, 50)
+                break
+            case "metalloid":
+                // metalloids like Boron are dark green.
+                fill(80, 80, 20)
+                stroke(80, 100, 30)
+                break
+            case "polyatomic nonmetal":
+                // polyatomic nonmetals like Carbon are yellow. A little bit
+                // more saturated, darker, and a bit greener than diatomic
+                // nonmetals.
+                fill(60, 85, 55)
+                stroke(60, 85, 75)
+                break
+            case "post-transition metal":
+                // post-transition metals like aluminum are green.
+                fill(100, 60, 40)
+                stroke(100, 60, 60)
+                break
+            case "transition metal":
+                // transition metals like scandium are light blue.
+                fill(220, 80, 35)
+                stroke(220, 80, 45)
+                break
+            case "lanthanide":
+                // lanthanides like Lanthanum are cyan.
+                fill(180, 80, 40)
+                stroke(180, 80, 70)
+                break
+            case "actinide":
+                // actinides like Actinum are teal.
+                fill(160, 80, 40)
+                stroke(160, 80, 70)
+                break
+        }
+
+        // now we draw the square.
+        rectMode(CORNER)
+
+        // we will use all of these as references.
+        // we want the element square to be situated just under the text box.
+        // the height of the text box (as marked below) is textAscent() +
+        // textDescent() while the text size is 16*(elementSize/75)
+        textSize(16*(elementSize/75))
+        let squareSize = elementSize*3
+        let leftXPos = padding
+        let topYPos = padding + textAscent() + textDescent()
+        square(leftXPos, topYPos, squareSize)
+
+        // display the atomic number
+        textSize(13*(elementSize/75))
+        noStroke()
+        fill(0, 0, 100)
+        textAlign(LEFT, TOP)
+        text(z, leftXPos, topYPos)
+
+        // and the atomic mass
+        textAlign(RIGHT, TOP)
+        text(averageMass, leftXPos + squareSize, topYPos)
+
+        // and the symbol
+        textAlign(LEFT, TOP)
+        textSize(70*(elementSize/75))
+        text(chemSymbol, leftXPos, topYPos + 13*(elementSize/75))
+
+        // and the name
+        textAlign(RIGHT, TOP)
+        textSize(10*(elementSize/75))
+        text(name, leftXPos + squareSize, topYPos + 16*(elementSize/75))
+
+        // after that we add "normal state" + "category"
+        // for example, "Solid transition metal" or "Liquid diatomic nonmetal"
+        // or "Gaseous diatomic nonmetal"
+        text(normalState + " " + category, leftXPos + squareSize, topYPos + 29*(elementSize/75))
+
+
+        textAlign(LEFT, TOP)
+    }
+
+    // at the top-left we always have the search box.
     // we'll be situating this such that it touches the corner.
     fill(0, 0, 25)
     stroke(0, 0, 50)
@@ -469,7 +614,6 @@ function draw() {
         line(cursorXPos, 3 * elementSize / 75,
             cursorXPos, textAscent() + textDescent() - 3 * elementSize / 75)
     }
-
 
     /* debugCorner needs to be last so its z-index is highest */
     // debugCorner.setText(`frameCount: ${frameCount}`, 2)
