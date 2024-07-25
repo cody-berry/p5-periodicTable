@@ -433,6 +433,13 @@ function draw() {
 
     // however, we're erasing all this and drawing a new screen if there's
     // only 1 match.
+    // or, if the text in the search box is exactly one of those matches.
+    for (let match of matches) {
+        let name = periodicTableJSON["elements"][match - 1]["name"]
+        if (textInSearchBar.toLowerCase() === name.toLowerCase()) {
+            matches = [match]
+        }
+    }
     if (matches.length === 1) {
         background(234, 34, 24)
 
@@ -556,11 +563,28 @@ function draw() {
         text(name, leftXPos + squareSize, topYPos + 16*(elementSize/75))
 
         // after that we add "normal state" + "category"
-        // for example, "Solid transition metal" or "Liquid diatomic nonmetal"
+        // for example, "Solid transition metal" or "Liquid transition metal"
         // or "Gaseous diatomic nonmetal"
-        text(normalState + " " + category, leftXPos + squareSize, topYPos + 29*(elementSize/75))
+        text(normalState + " " + category,
+            leftXPos + squareSize, topYPos + 29*(elementSize/75))
 
+        // after that we add the electronegativity
+        text("Electronegativity: " + electronegativity,
+            leftXPos + squareSize, topYPos + 42*(elementSize/75))
 
+        // then the density.
+        // density is in grams per liters for gasses, and grams per cubed
+        // centimeters for solids and liquids
+        text("Density: " + density + " " +
+             ((normalState === "gaseous") ? "g/l" : "g/cm³"),
+             leftXPos + squareSize, topYPos + 55*(elementSize/75))
+
+        //  the period and group as well
+        text("Period: " + period + ", group: " + group,
+            leftXPos + squareSize, topYPos + 68*(elementSize/75))
+
+        // then we add the electron config semantic, ex *[Rn] 5f14 6d10 7s2 7p6
+        text("Electron config: " + electronConfig, leftXPos + squareSize, topYPos + 82*(elementSize/75))
         textAlign(LEFT, TOP)
     }
 
