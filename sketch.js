@@ -465,7 +465,8 @@ function draw() {
         let electronAffinity = selectedElementData["electron_affinity"]
         let electronegativity = selectedElementData["electronegativity_pauling"]
         let ionizationEnergies = selectedElementData["ionization_energies"]
-        let image = selectedElementData["image"]
+        let imageData = selectedElementData["image"]
+        let displayImage = elementImages[name]
         let block = selectedElementData["block"]
 
         // draw a big version of the element square at the bottom-left.
@@ -535,11 +536,17 @@ function draw() {
         // we want the element square to be situated just under the text box.
         // the height of the text box (as marked below) is textAscent() +
         // textDescent() while the text size is 16*(elementSize/75)
+        // it's more like an element rectangle; there's not enough properties
+        // to display for a square as large as elementSize*3, so I've thirded
+        // the height
         textSize(16*(elementSize/75))
         let squareSize = elementSize*3
         let leftXPos = padding
         let topYPos = padding + textAscent() + textDescent()
-        square(leftXPos, topYPos, squareSize)
+        let rightXPos = leftXPos + squareSize
+        let bottomYPos = topYPos + 5*squareSize/11
+        rectMode(CORNER)
+        rect(leftXPos, topYPos, squareSize, 5*squareSize/11)
 
         // display the atomic number
         textSize(13*(elementSize/75))
@@ -575,9 +582,15 @@ function draw() {
         // then the density.
         // density is in grams per liters for gasses, and grams per cubed
         // centimeters for solids and liquids
-        text("Density: " + density + " " +
-             ((normalState === "gaseous") ? "g/l" : "g/cm³"),
-             leftXPos + squareSize, topYPos + 55*(elementSize/75))
+        // or if the density is "null", just display Density: null
+        if (density !== null) {
+            text("Density: " + density +
+                ((normalState === "Gaseous") ? "g/l" : "g/cm³"),
+                leftXPos + squareSize, topYPos + 55 * (elementSize / 75))
+        } else {
+            text("Density: null",
+                leftXPos + squareSize, topYPos + 55 * (elementSize / 75))
+        }
 
         //  the period and group as well
         text("Period: " + period + ", group: " + group,
@@ -586,6 +599,16 @@ function draw() {
         // then we add the electron config semantic, ex *[Rn] 5f14 6d10 7s2 7p6
         text("Electron config: " + electronConfig, leftXPos + squareSize, topYPos + 82*(elementSize/75))
         textAlign(LEFT, TOP)
+
+
+        // display the example image of the element, size equal to element
+        // box size
+        image(displayImage, leftXPos, bottomYPos + padding, elementSize*3, elementSize*3)
+
+        // then display the bohr model image, just below that
+        // display the example image of the element, size equal to element
+        // box size
+        image(bohrModelImage, leftXPos, bottomYPos + elementSize*3 + padding*2, elementSize*3, elementSize*3)
     }
 
     // at the top-left we always have the search box.
@@ -594,7 +617,7 @@ function draw() {
     stroke(0, 0, 50)
     strokeWeight(1)
     textSize(16*(elementSize/75))
-    rect(0, 0, elementSize*2.5, textAscent() + textDescent())
+    rect(0, 0, elementSize*3, textAscent() + textDescent())
 
     // then display a magnifying glass.
     // a magnifying glass is made of a line and an unfilled circle.
