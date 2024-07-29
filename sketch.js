@@ -466,6 +466,7 @@ function draw() {
         let electronegativity = selectedElementData["electronegativity_pauling"]
         let ionizationEnergies = selectedElementData["ionization_energies"]
         let imageData = selectedElementData["image"]
+        let imageTitle = imageData["title"]
         let displayImage = elementImages[name]
         let block = selectedElementData["block"]
 
@@ -541,7 +542,7 @@ function draw() {
         // the height
         textSize(16*(elementSize/75))
         let squareSize = elementSize*3
-        let leftXPos = padding
+        let leftXPos = 0
         let topYPos = padding + textAscent() + textDescent()
         let rightXPos = leftXPos + squareSize
         let bottomYPos = topYPos + 5*squareSize/11
@@ -603,12 +604,40 @@ function draw() {
 
         // display the example image of the element, size equal to element
         // box size
-        image(displayImage, leftXPos, bottomYPos + padding, elementSize*3, elementSize*3)
+        image(displayImage, rightXPos + padding, 0, elementSize*3, elementSize*3)
 
         // then display the bohr model image, just below that
         // display the example image of the element, size equal to element
         // box size
-        image(bohrModelImage, leftXPos, bottomYPos + elementSize*3 + padding*2, elementSize*3, elementSize*3)
+        image(bohrModelImage, rightXPos + elementSize*3 + padding*2, 0, elementSize*3, elementSize*3)
+
+        // display the title of the image
+        let imageTitleWithNewlines = ""
+        charsSinceLastNewline = 0
+        for (let char of imageTitle) {
+            charsSinceLastNewline += 1
+
+            // add the newline for every 38 characters. Only during a space
+            // after a word/sentence.
+            if (charsSinceLastNewline >= 38){
+                let lastIndex = imageTitleWithNewlines.lastIndexOf(" ")
+                imageTitleWithNewlines =
+                    imageTitleWithNewlines.substring(0, lastIndex) + "\n" +
+                    imageTitleWithNewlines.substring(lastIndex + 1)
+
+                charsSinceLastNewline = imageTitleWithNewlines.length - lastIndex
+            }
+
+            // we add the char
+            imageTitleWithNewlines += char
+        }
+        fill(0, 0, 100)
+        text(imageTitleWithNewlines, rightXPos + padding, elementSize*3 + padding)
+
+        // then display the bohr model image title
+        // there is no explicit title, but we can say "Bohr model image"
+        text("Bohr model image", rightXPos + padding*2 + elementSize*3, elementSize*3 + padding)
+
     }
 
     // at the top-left we always have the search box.
