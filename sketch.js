@@ -18,6 +18,21 @@ let elementImages = {} // the names are the keys and the images are the values.
 let searchCursor = 0
 let textInSearchBar = "" // this is the actual text inside
 
+// the num neutrons in each element, including Deuterium
+let numNeutrons = [
+    0, 1, 2, 4, 5, 6, 6, 7, 8, 10, 10,
+    12, 12, 14, 14, 16, 16, 18, 22, 20, 20,
+    24, 26, 28, 28, 30, 30, 32, 30, 34, 34,
+    38, 42, 42, 46, 44, 48, 48, 50, 50, 50,
+    52, 56, 55, 58, 58, 60, 60, 66, 66, 70,
+    70, 78, 74, 78, 78, 78, 82, 82, 82, 82,
+    82, 84, 90, 90, 94, 94, 98, 98, 98, 100,
+    104, 104, 108, 108, 110, 112, 116, 116, 117, 122,
+    124, 126, 126, 126, 125, 136, 136, 138, 138, 142,
+    140, 146, 144, 150, 148, 151, 150, 153, 153, 157,
+    157, 157, 159, 163, 165, 165, 163, 169, 169, 171,
+    171, 173, 173, 175, 175, 177, 177, 176]
+
 // The cursor displays only half a second every second.
 // Without this variable, we sometimes wouldn't be able to see our cursor
 // when moving. This represents the base milliseconds that we offset the
@@ -608,10 +623,127 @@ function draw() {
         // box size
         image(displayImage, rightXPos + padding, 0, elementSize*3, elementSize*3)
 
-        // then display the bohr model image, just below that
-        // display the example image of the element, size equal to element
-        // box size
-        image(bohrModelImage, rightXPos + elementSize*3 + padding*2, 0, elementSize*3, elementSize*3)
+        // then display a bohr model.
+        // first we start with a black square for the border of the bohr
+        // model image.
+        let imageSize = elementSize*3
+        let imageLeftXPos = rightXPos + padding*2 + elementSize*3
+        let imageTopYPos = 0
+        let imageMiddleXPos = imageLeftXPos + squareSize/2
+        let imageMiddleYPos = imageTopYPos + squareSize/2
+        let imageRightXPos = imageLeftXPos + squareSize
+        let imageBottomYPos = imageTopYPos + squareSize
+        let electronDiameter = 8*elementSize/75
+        let nucleusDiameter = 40*elementSize/75
+        let orbitalOneDiameter = 62*elementSize/75
+        let orbitalTwoDiameter = 84*elementSize/75
+        let orbitalThreeDiameter = 106*elementSize/75
+        let orbitalFourDiameter = 128*elementSize/75
+        let orbitalFiveDiameter = 150*elementSize/75
+        let orbitalSixDiameter = 172*elementSize/75
+        let orbitalSevenDiameter = 194*elementSize/75
+        let electronShells = selectedElementData["shells"]
+
+        fill(0, 0, 0)
+        noStroke()
+        square(imageLeftXPos, imageTopYPos, imageSize, 10*elementSize/75)
+
+        // then we display a purple circle representing the nucleus,
+        // displaying the num neutrons and num protons in text
+        fill(300, 50, 50)
+        circle(imageMiddleXPos, imageMiddleYPos, nucleusDiameter)
+
+        // then we display a white-stroked circle representing each orbital
+        // or, technically not orbitals, but n=1 to n=7, those rings.
+        // we only display these rings if the electrons actually go there.
+        // for example, for hydrogen-helium, we display only the first ring,
+        // but from rubidium to xenon, we display 5 out of 7 rings. that's
+        // still not all of them; only when we reach the last period
+        // (francium to oganesson) do we display all 7.
+        noFill()
+        stroke(0, 0, 100)
+        circle(imageMiddleXPos, imageMiddleYPos, orbitalOneDiameter)
+        if (electronShells.length > 1) circle(imageMiddleXPos, imageMiddleYPos, orbitalTwoDiameter)
+        if (electronShells.length > 2) circle(imageMiddleXPos, imageMiddleYPos, orbitalThreeDiameter)
+        if (electronShells.length > 3) circle(imageMiddleXPos, imageMiddleYPos, orbitalFourDiameter)
+        if (electronShells.length > 4) circle(imageMiddleXPos, imageMiddleYPos, orbitalFiveDiameter)
+        if (electronShells.length > 5) circle(imageMiddleXPos, imageMiddleYPos, orbitalSixDiameter)
+        if (electronShells.length > 6) circle(imageMiddleXPos, imageMiddleYPos, orbitalSevenDiameter)
+
+        // now display each electron as a small yellowish green circle
+        let shellNum = 1
+        fill(90, 50, 100)
+        noStroke()
+
+        // if the first shell is already the valence electrons, make it red
+        if (electronShells.length === 1) fill(0, 50, 100)
+
+        for (let electronsPerShell of electronShells) {
+            // first we have to find the orbital diameter
+            let currentOrbitalDiameter = 0
+            switch (shellNum) {
+                case 1:
+                    currentOrbitalDiameter = orbitalOneDiameter
+                    break
+                case 2:
+                    currentOrbitalDiameter = orbitalTwoDiameter
+                    break
+                case 3:
+                    currentOrbitalDiameter = orbitalThreeDiameter
+                    break
+                case 4:
+                    currentOrbitalDiameter = orbitalFourDiameter
+                    break
+                case 5:
+                    currentOrbitalDiameter = orbitalFiveDiameter
+                    break
+                case 6:
+                    currentOrbitalDiameter = orbitalSixDiameter
+                    break
+                case 7:
+                    currentOrbitalDiameter = orbitalSevenDiameter
+                    break
+            }
+
+            // electronsPerShell is the number of electrons in the shell
+            // n=shellNum. we need to display that many electrons (spread
+            // evenly) in the circle.
+            let angleBetweenElectrons = TWO_PI/electronsPerShell
+
+            // to make it interesting we create an offset in the angle.
+            let offset = PI/2 + millis()*TWO_PI/(3000)*((-0.8)**shellNum)
+
+            // now that we have the angle between each electron, we can
+            // display the small electron circles.
+            for (let angle = offset; angle < TWO_PI + offset; angle += angleBetweenElectrons) {
+                let x = cos(angle)*currentOrbitalDiameter/2 + imageMiddleXPos
+                let y = sin(angle)*currentOrbitalDiameter/2 + imageMiddleYPos
+                noStroke()
+                circle(x, y, electronDiameter)
+
+                // display a small minus within
+                stroke(0, 0, 0)
+                strokeWeight(1)
+                line(x - 2*elementSize/75, y, x + 2*elementSize/75, y)
+            }
+
+            shellNum++
+
+            // if we've reached the last shellNum we switch to a pastel red
+            // color to represent valence electrons
+            if (shellNum === electronShells.length) fill(0, 50, 100)
+
+            // if it's the second-to-last we switch to a pastel cyan color
+            if (shellNum === electronShells.length - 1) fill(170, 50, 100)
+
+            // if it's the third-to-last we switch to a pastel greenish cyan
+            // color
+            if (shellNum === electronShells.length - 2) fill(140, 50, 100)
+
+            // if it's the fourth-to-last we switch to a yellowish green
+            // color
+            if (shellNum === electronShells.length - 2) fill(110, 50, 100)
+        }
 
         // display the title of the image
         let imageTitleWithNewlines = ""
