@@ -109,7 +109,7 @@ function draw() {
     // don't think even the experts know, because I believe it's impossible to
     // know a lot about undiscovered elements.
 
-    let padding = 4*elementSize/75 // padding for squares.
+    let padding = 4*elementSize/75 // padding for...almost everything.
 
     let yPos = elementSize*3/2 // we are displaying this in the center.
     let xPos = elementSize*3/4 // the xPos to display the period labels on.
@@ -443,6 +443,8 @@ function draw() {
     if (matches.length === 1) {
         background(234, 34, 24)
 
+        let padding = 8*elementSize/75
+
         // get all the needed data for the element
         let selectedElementData = periodicTableJSON["elements"][matches[0] - 1]
 
@@ -541,8 +543,8 @@ function draw() {
         // to display for a square as large as elementSize*3, so I've thirded
         // the height
         textSize(16*(elementSize/75))
-        let squareSize = elementSize*3
-        let leftXPos = 0
+        let squareSize = elementSize*3 - padding
+        let leftXPos = padding
         let topYPos = padding + textAscent() + textDescent()
         let rightXPos = leftXPos + squareSize
         let bottomYPos = topYPos + 5*squareSize/11
