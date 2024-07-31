@@ -772,6 +772,22 @@ function draw() {
         // there is no explicit title, but we can say "Bohr model image"
         text("Bohr model image", rightXPos + padding*2 + elementSize*3, elementSize*3 + padding)
 
+        // make the image fade to black by drawing increasingly opaque black
+        // rectangles
+        let alpha = -280
+        imageSize = elementSize*3
+        let imageCenterXPos = rightXPos + padding + imageSize/2
+        let imageCenterYPos = imageSize/2
+        for (let distanceFromImageCenter = 0; distanceFromImageCenter < elementSize*1.5; distanceFromImageCenter += 1.5*elementSize/100) {
+            stroke(0, 0, 0, alpha)
+            strokeWeight(12*elementSize/75)
+            noFill()
+            rect(imageCenterXPos - distanceFromImageCenter,
+                 imageCenterYPos - distanceFromImageCenter,
+                 distanceFromImageCenter*2)
+
+            alpha += 3.8
+        }
     }
 
     // at the top-left we always have the search box.
