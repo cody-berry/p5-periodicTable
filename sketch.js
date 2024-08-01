@@ -295,7 +295,6 @@ function draw() {
             mouseX > leftXPos && mouseX < rightXPos &&
             mouseY > topYPos && mouseY < bottomYPos) {
             selectedElement = i
-            print(selectedElement)
         }
 
         // we want to darken the element if the name doesn't include what's
@@ -381,8 +380,6 @@ function draw() {
 
     // now we display the example image of the element
     let exampleImage = elementImages[selectedElementData["name"]]
-    image(selectedElementData["bohr_model_image"], elementSize*4, elementSize*1.5,
-        elementSize*2, elementSize*2)
     image(exampleImage, elementSize*6 + 1, elementSize*1.5,
           elementSize*2, elementSize*2)
 
@@ -411,10 +408,76 @@ function draw() {
     }
     text(imageTitleWithNewlines, elementSize*8.1, elementSize*1.5)
 
+    // now we display a Lewis diagram of the element over a black background.
+    let imageSize = elementSize*2
+    let imageLeftXPos = elementSize*4
+    let imageTopYPos = elementSize*1.5
+    let imageCenterXPos = imageLeftXPos + imageSize/2
+    let imageCenterYPos = imageTopYPos + imageSize/2
+    let imageRightXPos = imageLeftXPos + imageSize
+    let imageBottomYPos = imageTopYPos + imageSize
+    textAlign(CENTER, CENTER)
+    fill(0, 0, 0)
+    square(imageLeftXPos, imageTopYPos, imageSize, 5)
+
+    // display the chemical symbol in the center over a green circle
+    fill(120, 50, 50)
+    circle(imageCenterXPos, imageCenterYPos, elementSize)
+    textSize(elementSize*2/3)
+    fill(0, 0, 100)
+
+    // if the symbol contains a lowercase g, that means it goes under the
+    // baseline. those, we want to display a touch higher.
+    if (selectedElementData["symbol"][1] === "g")
+        text(selectedElementData["symbol"], imageCenterXPos, imageCenterYPos - 5*elementSize/75)
+    else
+        text(selectedElementData["symbol"], imageCenterXPos, imageCenterYPos)
+    textAlign(LEFT, TOP)
+
+    let electrons = selectedElementData["shells"]
+    let numValenceElectrons = electrons[electrons.length - 1]
+
+    stroke(0, 0, 100)
+    noFill()
+    strokeWeight(10)
+    let distFromCenter = 2*elementSize/3
+
+    // top electrons: display 1 dot for 1-4 electrons, 2 dots for 5-8 electrons
+    // also display 2 dots for Helium
+    if (numValenceElectrons >= 1 && numValenceElectrons <= 4 && selectedElementData["name"] !== "Helium") {
+        point(imageCenterXPos, imageCenterYPos - distFromCenter)
+    } if (numValenceElectrons >= 5 || selectedElementData["name"] === "Helium") {
+        point(imageCenterXPos - elementSize/5, imageCenterYPos - distFromCenter)
+        point(imageCenterXPos + elementSize/5, imageCenterYPos - distFromCenter)
+    }
+
+    // right electrons: display 1 dot for 2-5 electrons, 2 dots for 6-8 electrons
+    if (numValenceElectrons >= 2 && numValenceElectrons <= 5 && selectedElementData["name"] !== "Helium") {
+        point(imageCenterXPos + distFromCenter, imageCenterYPos)
+    } if (numValenceElectrons >= 6) {
+        point(imageCenterXPos + distFromCenter, imageCenterYPos - elementSize/5)
+        point(imageCenterXPos + distFromCenter, imageCenterYPos + elementSize/5)
+    }
+
+    // bottom electrons: display 1 dot for 3-6 electrons, 2 dots for 7-8 electrons
+    if (numValenceElectrons >= 3 && numValenceElectrons <= 6) {
+        point(imageCenterXPos, imageCenterYPos + distFromCenter)
+    } if (numValenceElectrons >= 7) {
+        point(imageCenterXPos - elementSize/5, imageCenterYPos + distFromCenter)
+        point(imageCenterXPos + elementSize/5, imageCenterYPos + distFromCenter)
+    }
+
+    // left electrons: display 1 dot for 4-7 electrons, 2 dots for 8 electrons
+    if (numValenceElectrons >= 4 && numValenceElectrons <= 7) {
+        point(imageCenterXPos - distFromCenter, imageCenterYPos)
+    } if (numValenceElectrons >= 8) {
+        point(imageCenterXPos - distFromCenter, imageCenterYPos - elementSize/5)
+        point(imageCenterXPos - distFromCenter, imageCenterYPos + elementSize/5)
+    }
+
     // we've finished with the periodic table and the non-detailed
     // description of the selected element.
-    // below that we're going to add a detailed description of the selected
-    // element.
+    // below that we're going to add some of the properties of that element.
     stroke(0, 0, 100)
     strokeWeight(1)
 
@@ -715,16 +778,18 @@ function draw() {
 
             // now that we have the angle between each electron, we can
             // display the small electron circles.
-            for (let angle = offset; angle < TWO_PI + offset; angle += angleBetweenElectrons) {
-                let x = cos(angle)*currentOrbitalDiameter/2 + imageMiddleXPos
-                let y = sin(angle)*currentOrbitalDiameter/2 + imageMiddleYPos
-                noStroke()
-                circle(x, y, electronDiameter)
+            if (electronsPerShell !== 0) {
+                for (let angle = offset; angle < TWO_PI + offset; angle += angleBetweenElectrons) {
+                    let x = cos(angle) * currentOrbitalDiameter / 2 + imageMiddleXPos
+                    let y = sin(angle) * currentOrbitalDiameter / 2 + imageMiddleYPos
+                    noStroke()
+                    circle(x, y, electronDiameter)
 
-                // display a small minus within
-                stroke(0, 0, 0)
-                strokeWeight(1)
-                line(x - 2*elementSize/75, y, x + 2*elementSize/75, y)
+                    // display a small minus within
+                    stroke(0, 0, 0)
+                    strokeWeight(1)
+                    line(x - 2 * elementSize / 75, y, x + 2 * elementSize / 75, y)
+                }
             }
 
             shellNum++
@@ -774,7 +839,7 @@ function draw() {
 
         // make the image fade to black by drawing increasingly opaque black
         // rectangles
-        let alpha = -280
+        let alpha = -80
         imageSize = elementSize*3
         let imageCenterXPos = rightXPos + padding + imageSize/2
         let imageCenterYPos = imageSize/2
@@ -786,7 +851,7 @@ function draw() {
                  imageCenterYPos - distanceFromImageCenter,
                  distanceFromImageCenter*2)
 
-            alpha += 3.8
+            alpha += 1.2
         }
     }
 
