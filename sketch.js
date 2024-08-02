@@ -380,8 +380,27 @@ function draw() {
 
     // now we display the example image of the element
     let exampleImage = elementImages[selectedElementData["name"]]
-    image(exampleImage, elementSize*6 + 1, elementSize*1.5,
+    image(exampleImage, elementSize*6 + 5, elementSize*1.5,
           elementSize*2, elementSize*2)
+
+    // make the image fade to black by drawing increasingly opaque black
+    // rectangles
+    let alpha = -80
+    let imageSize = elementSize*2
+    let imageCenterXPos = elementSize*6 + 5 + imageSize/2
+    let imageCenterYPos = elementSize*1.5 + imageSize/2
+    for (let distanceFromImageCenter = 0; distanceFromImageCenter < elementSize; distanceFromImageCenter += elementSize/100) {
+        stroke(0, 0, 0, alpha)
+        strokeWeight(6*elementSize/75)
+        noFill()
+        rect(imageCenterXPos - distanceFromImageCenter,
+            imageCenterYPos - distanceFromImageCenter,
+            distanceFromImageCenter*2)
+
+        alpha += 1.2
+    }
+
+    noStroke()
 
     // and we display the description of the element image.
     // however we will need to do some considerations on what to display.
@@ -406,14 +425,15 @@ function draw() {
         // we add the char
         imageTitleWithNewlines += char
     }
+    fill(0, 0, 100)
     text(imageTitleWithNewlines, elementSize*8.1, elementSize*1.5)
 
     // now we display a Lewis diagram of the element over a black background.
-    let imageSize = elementSize*2
+    imageSize = elementSize*2
     let imageLeftXPos = elementSize*4
     let imageTopYPos = elementSize*1.5
-    let imageCenterXPos = imageLeftXPos + imageSize/2
-    let imageCenterYPos = imageTopYPos + imageSize/2
+    imageCenterXPos = imageLeftXPos + imageSize/2
+    imageCenterYPos = imageTopYPos + imageSize/2
     let imageRightXPos = imageLeftXPos + imageSize
     let imageBottomYPos = imageTopYPos + imageSize
     textAlign(CENTER, CENTER)
@@ -421,7 +441,7 @@ function draw() {
     square(imageLeftXPos, imageTopYPos, imageSize, 5)
 
     // display the chemical symbol in the center over a green circle
-    fill(120, 50, 50)
+    fill(300, 50, 50)
     circle(imageCenterXPos, imageCenterYPos, elementSize)
     textSize(elementSize*2/3)
     fill(0, 0, 100)
