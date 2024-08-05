@@ -352,16 +352,16 @@ function draw() {
     noStroke()
 
     // however we will need to do some considerations on what to display.
-    // every 110 characters there should be a newline after the previous word.
+    // every 100 characters there should be a newline after the previous word.
     let summary = selectedElementData["summary"]
     let summaryWithNewlines = ""
     let charsSinceLastNewline = 0
     for (let char of summary) {
         charsSinceLastNewline += 1
 
-        // add a newline at the beginning of the last word for every 110
+        // add a newline at the beginning of the last word for every 100
         // characters. in other words, replace the last space with a newline.
-        if (charsSinceLastNewline === 110) {
+        if (charsSinceLastNewline === 100) {
             let lastIndex = summaryWithNewlines.lastIndexOf(" ")
             summaryWithNewlines =
                 summaryWithNewlines.substring(0, lastIndex) + "\n" +
@@ -375,7 +375,7 @@ function draw() {
     }
 
     textAlign(LEFT, TOP)
-    text(summaryWithNewlines, elementSize*3, 0)
+    text(summaryWithNewlines, elementSize*3 + padding, 0)
     textStyle(NORMAL)
 
     // now we display the example image of the element
@@ -832,7 +832,7 @@ function draw() {
 
         // display the title of the image
         let imageTitleWithNewlines = ""
-        charsSinceLastNewline = 0
+        let charsSinceLastNewline = 0
         for (let char of imageTitle) {
             charsSinceLastNewline += 1
 
@@ -873,6 +873,37 @@ function draw() {
 
             alpha += 1.2
         }
+
+        // add the summary of the element
+        // however we will need to do some considerations on what to display.
+        // every 90 characters there should be a newline after the previous
+        // word.
+        let summaryWithNewlines = ""
+        charsSinceLastNewline = 0
+        for (let char of summary) {
+            charsSinceLastNewline += 1
+
+            // add a newline at the beginning of the last word for every 90
+            // characters. in other words, replace the last space with a newline.
+            if (charsSinceLastNewline === 123) {
+                let lastIndex = summaryWithNewlines.lastIndexOf(" ")
+                summaryWithNewlines =
+                    summaryWithNewlines.substring(0, lastIndex) + "\n" +
+                    summaryWithNewlines.substring(lastIndex + 1)
+
+                charsSinceLastNewline = summaryWithNewlines.length - lastIndex
+            }
+
+            // we add the char
+            summaryWithNewlines += char
+        }
+
+        textAlign(LEFT, TOP)
+        fill(0, 0, 100)
+        noStroke()
+        textSize(12*elementSize/75)
+        text(summaryWithNewlines, elementSize*9 + padding*3, 0)
+        textStyle(NORMAL)
     }
 
     // at the top-left we always have the search box.
