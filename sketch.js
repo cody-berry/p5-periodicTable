@@ -323,8 +323,8 @@ function draw() {
 
     // draw the parallelegram between the last two alkaline earth metals (at
     // least, until the eight alkaline earth metal is released. It should be
-    // element 120, but who knows?)
-    // we have an increased y padding (6); otherwise it looks weird
+    // element 120, but who knows?) and the first lanthanide/actinide
+    // we have an increased y padding; otherwise it looks weird
     noStroke()
     fill(180, 80, 40)
     stroke(180, 80, 70)
@@ -709,6 +709,8 @@ function draw() {
         // then display a bohr model.
         // first we start with a black square for the border of the bohr
         // model image.
+        let protons = z
+        let neutrons = numNeutrons[matches[0] - 1]
         let imageSize = elementSize*3
         let imageLeftXPos = rightXPos + padding*2 + elementSize*3
         let imageTopYPos = 0
@@ -717,24 +719,45 @@ function draw() {
         let imageRightXPos = imageLeftXPos + squareSize
         let imageBottomYPos = imageTopYPos + squareSize
         let electronDiameter = 8*elementSize/75
-        let nucleusDiameter = 40*elementSize/75
-        let orbitalOneDiameter = 62*elementSize/75
-        let orbitalTwoDiameter = 84*elementSize/75
-        let orbitalThreeDiameter = 106*elementSize/75
-        let orbitalFourDiameter = 128*elementSize/75
-        let orbitalFiveDiameter = 150*elementSize/75
-        let orbitalSixDiameter = 172*elementSize/75
-        let orbitalSevenDiameter = 194*elementSize/75
+        let nucleonDiameter = 3.2*elementSize/75
+        let nucleusDiameter = 80*elementSize/75
+        let orbitalOneDiameter = 100*elementSize/75
+        let orbitalTwoDiameter = 120*elementSize/75
+        let orbitalThreeDiameter = 140*elementSize/75
+        let orbitalFourDiameter = 160*elementSize/75
+        let orbitalFiveDiameter = 180*elementSize/75
+        let orbitalSixDiameter = 200*elementSize/75
+        let orbitalSevenDiameter = 220*elementSize/75
         let electronShells = selectedElementData["shells"]
 
         fill(0, 0, 0)
         noStroke()
         square(imageLeftXPos, imageTopYPos, imageSize, 10*elementSize/75)
 
-        // then we display a purple circle representing the nucleus,
-        // displaying the num neutrons and num protons in text
+        // then we display a purple circle under the nucleus's protons and
+        // neutrons
         fill(300, 50, 50)
         circle(imageMiddleXPos, imageMiddleYPos, nucleusDiameter)
+
+        // draw the requisite protons and neutrons
+        let angleIncrement = PI * (3 - sqrt(5)) // golden angle
+        let maxRadius = nucleusDiameter/2 - nucleonDiameter/2
+        for (i = 0; i < protons + neutrons; i++) {
+            let angle = angleIncrement*i
+            let r = sqrt(i/(protons + neutrons)) * maxRadius
+            let x = cos(angle) * r + imageMiddleXPos
+            let y = sin(angle) * r + imageMiddleYPos
+
+            if (i % 2 === 1 && i/2 < protons) {
+                fill(0, 100, 50) // red for protons
+                noStroke()
+            } else {
+                fill(240, 100, 50) // blue for neutrons
+                noStroke()
+            }
+
+            circle(x, y, nucleonDiameter)
+        }
 
         // then we display a white-stroked circle representing each orbital
         // or, technically not orbitals, but n=1 to n=7, those rings.
@@ -904,6 +927,17 @@ function draw() {
         textSize(12*elementSize/75)
         text(summaryWithNewlines, elementSize*9 + padding*3, 0)
         textStyle(NORMAL)
+
+        // then display all the ionization energies just below the large
+        // element rectangle.
+        textSize(15*elementSize/75)
+        if (ionizationEnergies.length > 0) {
+            text("Ionization energies:\n" + join(ionizationEnergies, "\n"),
+                padding, bottomYPos + padding)
+        } else {
+            text("Ionization energies: null",
+                padding, bottomYPos + padding)
+        }
     }
 
     // at the top-left we always have the search box.
