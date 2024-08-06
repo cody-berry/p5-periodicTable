@@ -638,47 +638,48 @@ function draw() {
         // the height of the text box (as marked below) is textAscent() +
         // textDescent() while the text size is 16*(elementSize/75)
         // it's more like an element rectangle; there's not enough properties
-        // to display for a square as large as elementSize*3, so I've thirded
-        // the height
+        // to display for a square as large as elementSize*3, so I've halved
+        // the height. for consistent padding it needs to be a little less
+        // than half.
         textSize(16*(elementSize/75))
         let squareSize = elementSize*3 - padding
         let leftXPos = padding
         let topYPos = padding + textAscent() + textDescent()
         let rightXPos = leftXPos + squareSize
-        let bottomYPos = topYPos + 5*squareSize/11
+        let bottomYPos = topYPos + 49*squareSize/100
         rectMode(CORNER)
-        rect(leftXPos, topYPos, squareSize, 5*squareSize/11)
+        rect(leftXPos, topYPos, squareSize, 49*squareSize/100)
 
         // display the atomic number
         textSize(13*(elementSize/75))
         noStroke()
         fill(0, 0, 100)
         textAlign(LEFT, TOP)
-        text(z, leftXPos, topYPos)
+        text(z, leftXPos + padding, topYPos + padding)
 
         // and the atomic mass
         textAlign(RIGHT, TOP)
-        text(averageMass, leftXPos + squareSize, topYPos)
+        text(averageMass, rightXPos - padding, topYPos + padding)
 
         // and the symbol
         textAlign(LEFT, TOP)
         textSize(70*(elementSize/75))
-        text(chemSymbol, leftXPos, topYPos + 13*(elementSize/75))
+        text(chemSymbol, leftXPos + padding/2, topYPos + padding + 13*(elementSize/75))
 
         // and the name
         textAlign(RIGHT, TOP)
         textSize(10*(elementSize/75))
-        text(name, leftXPos + squareSize, topYPos + 16*(elementSize/75))
+        text(name, rightXPos - padding, topYPos + padding + 16*(elementSize/75))
 
         // after that we add "normal state" + "category"
         // for example, "Solid transition metal" or "Liquid transition metal"
         // or "Gaseous diatomic nonmetal"
         text(normalState + " " + category,
-            leftXPos + squareSize, topYPos + 29*(elementSize/75))
+             rightXPos - padding, topYPos + padding + 29*(elementSize/75))
 
         // after that we add the electronegativity
         text("Electronegativity: " + electronegativity,
-            leftXPos + squareSize, topYPos + 42*(elementSize/75))
+             rightXPos - padding, topYPos + padding + 42*(elementSize/75))
 
         // then the density.
         // density is in grams per liters for gasses, and grams per cubed
@@ -687,18 +688,20 @@ function draw() {
         if (density !== null) {
             text("Density: " + density +
                 ((normalState === "Gaseous") ? "g/l" : "g/cm³"),
-                leftXPos + squareSize, topYPos + 55 * (elementSize / 75))
+                rightXPos - padding, topYPos + padding + 55 * (elementSize / 75))
         } else {
             text("Density: null",
-                leftXPos + squareSize, topYPos + 55 * (elementSize / 75))
+                 rightXPos - padding, topYPos + padding + 55 * (elementSize / 75))
         }
 
         //  the period and group as well
         text("Period: " + period + ", group: " + group,
-            leftXPos + squareSize, topYPos + 68*(elementSize/75))
+             rightXPos - padding, topYPos + padding + 68*(elementSize/75))
 
         // then we add the electron config semantic, ex *[Rn] 5f14 6d10 7s2 7p6
-        text("Electron config: " + electronConfig, leftXPos + squareSize, topYPos + 82*(elementSize/75))
+        textAlign(RIGHT, BOTTOM)
+        text("e⁻ config: " + electronConfig, rightXPos - padding,
+             bottomYPos - padding)
         textAlign(LEFT, TOP)
 
 
@@ -719,7 +722,6 @@ function draw() {
         let imageRightXPos = imageLeftXPos + squareSize
         let imageBottomYPos = imageTopYPos + squareSize
         let electronDiameter = 8*elementSize/75
-        let nucleonDiameter = 3.2*elementSize/75
         let nucleusDiameter = 80*elementSize/75
         let orbitalOneDiameter = 100*elementSize/75
         let orbitalTwoDiameter = 120*elementSize/75
@@ -729,6 +731,34 @@ function draw() {
         let orbitalSixDiameter = 200*elementSize/75
         let orbitalSevenDiameter = 220*elementSize/75
         let electronShells = selectedElementData["shells"]
+
+        // because the nucleus diameter stays the same but the number of
+        // protons and neutrons don't, something else has to adjust. in this
+        // case, the nucleon diameter.
+        let nucleonDiameter = 3.2*elementSize/75
+        if (z > 65) {
+            nucleonDiameter = 3.2 * elementSize / 75
+        } else if (z > 45) {
+            nucleonDiameter = 4*elementSize/75
+        } else if (z > 30) {
+            nucleonDiameter = 5*elementSize/75
+        } else if (z > 20) {
+            nucleonDiameter = 6*elementSize/75
+        } else if (z > 10) {
+            nucleonDiameter = 9*elementSize/75
+        } else if (z > 6) {
+            nucleonDiameter = 13*elementSize/75
+        } else if (z > 4) {
+            nucleonDiameter = 14*elementSize/75
+        } else if (z === 4) {
+            nucleonDiameter = 16*elementSize/75
+        } else if (z === 3) {
+            nucleonDiameter = 18*elementSize/75
+        } else if (z === 2) {
+            nucleonDiameter = 23*elementSize/75
+        } else if (z === 1) {
+            nucleonDiameter = 28*elementSize/75
+        }
 
         fill(0, 0, 0)
         noStroke()
@@ -748,8 +778,8 @@ function draw() {
             let x = cos(angle) * r + imageMiddleXPos
             let y = sin(angle) * r + imageMiddleYPos
 
-            if (i % 2 === 1 && i/2 < protons) {
-                fill(0, 100, 50) // red for protons
+            if (i % 2 === 0 && i/2 < protons) {
+                fill(20, 100, 50) // red for protons
                 noStroke()
             } else {
                 fill(240, 100, 50) // blue for neutrons
