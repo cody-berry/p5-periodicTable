@@ -36,16 +36,22 @@ let numNeutrons = [
 // The cursor displays only half a second every second.
 // Without this variable, we sometimes wouldn't be able to see our cursor
 // when moving. This represents the base milliseconds that we offset the
-// cursor display by.
+// cursor display by. This way, whenever we're moving, we can reset the
+// cursor display such that
 let cursorDisplayBaseMillis = 0
 
 function preload() {
     font = loadFont('data/consola.ttf') // the font we'll be using
     fixedWidthFont = loadFont('data/consola.ttf') // this is the same as "font"
     variableWidthFont = loadFont('data/meiryo.ttf') // another font option
+
+    // load the json
     periodicTableJSON = loadJSON('data/elementsBowserinator.json', processData)
 }
 
+// on the data, do the following:
+// 1. replace the bohr model image link with the actual image, not that we're using it
+// 2. download all 119 element images in the elementImages file
 function processData(data) {
     // there are 119 images available from all elements (I know I haven't
     // missed any), and we should download them to elementImages.
@@ -130,8 +136,8 @@ function draw() {
     let xPos = elementSize*3/4 // the xPos to display the period labels on.
     textAlign(CENTER, CENTER)
 
-    // since we'll be facilitating scrolling, we need to scale everything to
-    // the element size. Everything has to depend on that.
+    // since we'll be facilitating changing window size, we need to scale
+    // everything to the element size. Everything has to depend on that.
     textSize((elementSize/75)*14)
     for (let period = 1; period <= 7; period += 1) {
         text(period, xPos, yPos)
@@ -153,8 +159,8 @@ function draw() {
     let i = 0
 
     // this is going to be more complex than you think it is. it's also when
-    // we check for whether the element is lightened up, and we want to keep
-    // track of that.
+    // we check for whether the element matches the search bar, so we'll
+    // want to create the variable.
     let matches = []
 
     for (let element of periodicTableJSON["elements"]) {
@@ -174,7 +180,8 @@ function draw() {
         // however, there is an exception with the lanthanides and actinides.
         // the json displays it as period 6 or 7 and group 3, whereas it's
         // actually supposed to be displayed as if it's period 8 or 9 and group
-        // 4+.
+        // 4-18 depending on which lanthanide/actinide it is and which
+        // category the element is in.
 
         // atomic numbers 57-71 correspond to lanthanides (groups 4-18).
         if (z >= 57 && z <= 71) {
@@ -255,6 +262,7 @@ function draw() {
         rectMode(CORNER)
 
         // we will use all of these later for mouse pressing business.
+        // for now, they're just variables for displaying the square.
         let leftXPos = xPos + padding
         let topYPos = yPos + padding
         let squareSize = elementSize - padding*2
@@ -291,6 +299,8 @@ function draw() {
         // now we check if the mouse is clicking on it.
         // it is much harder to do this when we don't already know where the
         // square is. we know right now, so we should take the chance.
+        // if it is we just update the selectedElement, which is equal to
+        // the index of the element in the json (i).
         if (mouseIsPressed &&
             mouseX > leftXPos && mouseX < rightXPos &&
             mouseY > topYPos && mouseY < bottomYPos) {
@@ -324,7 +334,8 @@ function draw() {
     // draw the parallelegram between the last two alkaline earth metals (at
     // least, until the eight alkaline earth metal is released. It should be
     // element 120, but who knows?) and the first lanthanide/actinide
-    // we have an increased y padding; otherwise it looks weird
+    // we have an increased y padding (multiplied by 1.5); otherwise it looks
+    // weird
     noStroke()
     fill(180, 80, 40)
     stroke(180, 80, 70)
@@ -351,8 +362,12 @@ function draw() {
     fill(0, 0, 100)
     noStroke()
 
-    // however we will need to do some considerations on what to display.
-    // every 100 characters there should be a newline after the previous word.
+    // however we will need to do some considerations on where to display
+    // newlines. every 100 characters there should be a newline after the
+    // previous word.
+    // this is similar to my code from typerc, but with textWidth() instead
+    // of using a fixed number of characters. this is effectively the same
+    // in a monospace font.
     let summary = selectedElementData["summary"]
     let summaryWithNewlines = ""
     let charsSinceLastNewline = 0
@@ -383,8 +398,13 @@ function draw() {
     image(exampleImage, elementSize*6 + 5, elementSize*1.5,
           elementSize*2, elementSize*2)
 
-    // make the image fade to black by drawing increasingly opaque black
+    // make the image fade to black by drawing increasingly opaque black-stroked
     // rectangles
+    // the rectangles have a strokeweight that can extend out of the border.
+    // this will be fixed soon. The alpha is designed to increase to 100.
+    // the vignette helps white backgrounds blend in with the dark blue
+    // background. in some cases it looks weird. note that this might help
+    // focus on what is supposed to be focused on, like for Neptunium.
     let alpha = -80
     let imageSize = elementSize*2
     let imageCenterXPos = elementSize*6 + 5 + imageSize/2
@@ -437,6 +457,8 @@ function draw() {
     let imageRightXPos = imageLeftXPos + imageSize
     let imageBottomYPos = imageTopYPos + imageSize
     textAlign(CENTER, CENTER)
+
+    // make the background
     fill(0, 0, 0)
     square(imageLeftXPos, imageTopYPos, imageSize, 5)
 
@@ -451,6 +473,7 @@ function draw() {
     if (selectedElementData["symbol"][1] === "g")
         text(selectedElementData["symbol"], imageCenterXPos, imageCenterYPos - 5*elementSize/75)
     else
+        // otherwise, just display it normally.
         text(selectedElementData["symbol"], imageCenterXPos, imageCenterYPos)
     textAlign(LEFT, TOP)
 
@@ -463,7 +486,8 @@ function draw() {
     let distFromCenter = 2*elementSize/3
 
     // top electrons: display 1 dot for 1-4 electrons, 2 dots for 5-8 electrons
-    // also display 2 dots for Helium
+    // display 2 dots for Helium even with 2 electrons, due to there only
+    // being 1 electron pair
     if (numValenceElectrons >= 1 && numValenceElectrons <= 4 && selectedElementData["name"] !== "Helium") {
         point(imageCenterXPos, imageCenterYPos - distFromCenter)
     } if (numValenceElectrons >= 5 || selectedElementData["name"] === "Helium") {
@@ -472,6 +496,9 @@ function draw() {
     }
 
     // right electrons: display 1 dot for 2-5 electrons, 2 dots for 6-8 electrons
+    // don't display a first dot for Helium even with 2 electrons. that
+    // would mean a second electron pair, which doesn't exist for the 1s
+    // orbital.
     if (numValenceElectrons >= 2 && numValenceElectrons <= 5 && selectedElementData["name"] !== "Helium") {
         point(imageCenterXPos + distFromCenter, imageCenterYPos)
     } if (numValenceElectrons >= 6) {
@@ -847,7 +874,7 @@ function draw() {
             let angleBetweenElectrons = TWO_PI/electronsPerShell
 
             // to make it interesting we create an offset in the angle.
-            let offset = PI/2 + millis()*TWO_PI/(3000)*((-0.8)**shellNum)
+            let offset = PI/2 + millis()*TWO_PI/(4000)*((-0.8)**shellNum)
 
             // now that we have the angle between each electron, we can
             // display the small electron circles.
@@ -1034,8 +1061,6 @@ function draw() {
 
 
 function keyPressed() {
-
-
     /* stop sketch */
     if (keyCode === 97) { /* numpad 1 */
         noLoop()
