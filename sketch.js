@@ -568,6 +568,7 @@ function draw() {
     if (matches.length === 1) {
         background(234, 34, 24)
 
+        // padding is quite a bit larger in here
         let padding = 8*elementSize/75
 
         // get all the needed data for the element
@@ -599,6 +600,7 @@ function draw() {
 
         // draw a big version of the element square at the bottom-left.
         // now we need to decide the color
+        // same thing as last time. comments just as refresher.
         fill(0, 0, 20)
         strokeWeight(elementSize/75)
         stroke(0, 0, 30)
@@ -673,42 +675,42 @@ function draw() {
         let leftXPos = padding
         let topYPos = padding + textAscent() + textDescent()
         let rightXPos = leftXPos + squareSize
-        let bottomYPos = topYPos + 49*squareSize/100
+        let bottomYPos = topYPos + 49*squareSize/100 // not exactly half height.
         rectMode(CORNER)
         rect(leftXPos, topYPos, squareSize, 49*squareSize/100)
 
-        // display the atomic number
+        // display the atomic number (top-left)
         textSize(13*(elementSize/75))
         noStroke()
         fill(0, 0, 100)
         textAlign(LEFT, TOP)
         text(z, leftXPos + padding, topYPos + padding)
 
-        // and the atomic mass
+        // and the atomic mass (top-right)
         textAlign(RIGHT, TOP)
         text(averageMass, rightXPos - padding, topYPos + padding)
 
-        // and the symbol
+        // and the symbol (left)
         textAlign(LEFT, TOP)
         textSize(70*(elementSize/75))
         text(chemSymbol, leftXPos + padding/2, topYPos + padding + 13*(elementSize/75))
 
-        // and the name
+        // and the name (right)
         textAlign(RIGHT, TOP)
         textSize(10*(elementSize/75))
         text(name, rightXPos - padding, topYPos + padding + 16*(elementSize/75))
 
-        // after that we add "normal state" + "category"
-        // for example, "Solid transition metal" or "Liquid transition metal"
+        // after that we add "normal state" + "category" (right)
+        // for example, "Solid alkali metal" or "Liquid transition metal"
         // or "Gaseous diatomic nonmetal"
         text(normalState + " " + category,
              rightXPos - padding, topYPos + padding + 29*(elementSize/75))
 
-        // after that we add the electronegativity
+        // after that we add the electronegativity (right)
         text("Electronegativity: " + electronegativity,
              rightXPos - padding, topYPos + padding + 42*(elementSize/75))
 
-        // then the density.
+        // then the density. (right)
         // density is in grams per liters for gasses, and grams per cubed
         // centimeters for solids and liquids
         // or if the density is "null", just display Density: null
@@ -721,11 +723,12 @@ function draw() {
                  rightXPos - padding, topYPos + padding + 55 * (elementSize / 75))
         }
 
-        //  the period and group as well
+        // the period and group as well
         text("Period: " + period + ", group: " + group,
              rightXPos - padding, topYPos + padding + 68*(elementSize/75))
 
-        // then we add the electron config semantic, ex *[Rn] 5f14 6d10 7s2 7p6
+        // then we add the electron config semantic, ex *[Rn] 5f14 6d10 7s2
+        // 7p6 (bottom)
         textAlign(RIGHT, BOTTOM)
         text("e⁻ config: " + electronConfig, rightXPos - padding,
              bottomYPos - padding)
@@ -764,7 +767,7 @@ function draw() {
         // case, the nucleon diameter.
         let nucleonDiameter = 3.2*elementSize/75
         if (z > 65) {
-            nucleonDiameter = 3.2 * elementSize / 75
+            nucleonDiameter = 3.2*elementSize/75
         } else if (z > 45) {
             nucleonDiameter = 4*elementSize/75
         } else if (z > 30) {
@@ -792,11 +795,11 @@ function draw() {
         square(imageLeftXPos, imageTopYPos, imageSize, 10*elementSize/75)
 
         // then we display a purple circle under the nucleus's protons and
-        // neutrons
+        // neutrons for the background of the nucleus
         fill(300, 50, 50)
         circle(imageMiddleXPos, imageMiddleYPos, nucleusDiameter)
 
-        // draw the requisite protons and neutrons
+        // draw the requisite protons and neutrons in a sunflower seed pattern
         let angleIncrement = PI * (3 - sqrt(5)) // golden angle
         let maxRadius = nucleusDiameter/2 - nucleonDiameter/2
         for (i = 0; i < protons + neutrons; i++) {
@@ -817,12 +820,14 @@ function draw() {
         }
 
         // then we display a white-stroked circle representing each orbital
-        // or, technically not orbitals, but n=1 to n=7, those rings.
+        // or, technically not orbitals, but n=1 to n=7, those rings. (shells)
         // we only display these rings if the electrons actually go there.
         // for example, for hydrogen-helium, we display only the first ring,
         // but from rubidium to xenon, we display 5 out of 7 rings. that's
         // still not all of them; only when we reach the last period
         // (francium to oganesson) do we display all 7.
+        // palladium technically has 0 valence electrons, so we display its
+        // 4th shell even though there is no 4s shell.
         noFill()
         stroke(0, 0, 100)
         circle(imageMiddleXPos, imageMiddleYPos, orbitalOneDiameter)
@@ -873,7 +878,10 @@ function draw() {
             // evenly) in the circle.
             let angleBetweenElectrons = TWO_PI/electronsPerShell
 
-            // to make it interesting we create an offset in the angle.
+            // to make it interesting we create an offset in the angle that
+            // moves over time. It moves slower each time, and in order to
+            // not create a super weird effect, each shell has to move
+            // opposite direction.
             let offset = PI/2 + millis()*TWO_PI/(4000)*((-0.8)**shellNum)
 
             // now that we have the angle between each electron, we can
@@ -901,16 +909,16 @@ function draw() {
             // if it's the second-to-last we switch to a pastel cyan color
             if (shellNum === electronShells.length - 1) fill(170, 50, 100)
 
-            // if it's the third-to-last we switch to a pastel greenish cyan
-            // color
+            // if it's the third-to-last we switch to a pastel teal color
             if (shellNum === electronShells.length - 2) fill(140, 50, 100)
 
             // if it's the fourth-to-last we switch to a yellowish green
             // color
-            if (shellNum === electronShells.length - 2) fill(110, 50, 100)
+            if (shellNum === electronShells.length - 3) fill(110, 50, 100)
         }
 
         // display the title of the image
+        // very similar to the other times we wrapped text
         let imageTitleWithNewlines = ""
         let charsSinceLastNewline = 0
         for (let char of imageTitle) {
@@ -939,6 +947,8 @@ function draw() {
 
         // make the image fade to black by drawing increasingly opaque black
         // rectangles
+        // very similar to last time wedisplayed an image and wanted it to
+        // fade to black
         let alpha = -80
         imageSize = elementSize*3
         let imageCenterXPos = rightXPos + padding + imageSize/2
@@ -955,15 +965,13 @@ function draw() {
         }
 
         // add the summary of the element
-        // however we will need to do some considerations on what to display.
-        // every 90 characters there should be a newline after the previous
-        // word.
+        // same thing here about wrapping, except 123 characters
         let summaryWithNewlines = ""
         charsSinceLastNewline = 0
         for (let char of summary) {
             charsSinceLastNewline += 1
 
-            // add a newline at the beginning of the last word for every 90
+            // add a newline at the beginning of the last word for every 123
             // characters. in other words, replace the last space with a newline.
             if (charsSinceLastNewline === 123) {
                 let lastIndex = summaryWithNewlines.lastIndexOf(" ")
@@ -986,7 +994,9 @@ function draw() {
         textStyle(NORMAL)
 
         // then display all the ionization energies just below the large
-        // element rectangle.
+        // element rectangle. the num ionization energies will range anywhere
+        // from 0 (transactinoids) to 30 (molybdenum), but luckily we have
+        // enough room for that.
         textSize(15*elementSize/75)
         if (ionizationEnergies.length > 0) {
             text("Ionization energies:\n" + join(ionizationEnergies, "\n"),
@@ -1005,7 +1015,7 @@ function draw() {
     textSize(16*(elementSize/75))
     rect(0, 0, elementSize*3, textAscent() + textDescent())
 
-    // then display a magnifying glass.
+    // then display a magnifying glass at the left.
     // a magnifying glass is made of a line and an unfilled circle.
     noFill()
 
@@ -1073,13 +1083,15 @@ function keyPressed() {
         console.log(`debugCorner visibility set to ${debugCorner.visible}`)
     }
 
-    // we can type in the search bar, any letter
+    // we can type in the search bar, any letter. limit of 30 characters
+    // case doesn't matter, but just to make sure people don't get confused,
+    // the letters will be typed in as their original case.
     if (["a", "b", "c", "d", "e", "f", "g",
          "h", "i", "j", "k", "l", "m", "n",
          "o", "p", "q", "r", "s", "t",
          "u", "v", "w", "x", "y", "z"]
         .includes(key.toLowerCase()) &&
-        textInSearchBar.length < 18) {
+        textInSearchBar.length < 23) {
         // insert a letter into the search bar
         textInSearchBar =
             textInSearchBar.substring(0, searchCursor) +
@@ -1091,15 +1103,15 @@ function keyPressed() {
 
         cursorDisplayBaseMillis = millis()
     }
-    // or delete
-    if (keyCode === BACKSPACE && textInSearchBar.length > 0) {
+    // or delete, as long as the cursor isn't already at the start
+    if (keyCode === BACKSPACE && searchCursor > 0) {
         searchCursor -= 1
         textInSearchBar =
             textInSearchBar.substring(0, searchCursor) +
             textInSearchBar.substring(searchCursor + 1)
         cursorDisplayBaseMillis = millis()
     }
-    // or go left/right
+    // or go left/right, assuming the cursor won't go out of the text
     if (keyCode === LEFT_ARROW && searchCursor > 0) {
         searchCursor -= 1
         cursorDisplayBaseMillis = millis()
