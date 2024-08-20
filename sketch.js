@@ -468,13 +468,17 @@ function draw() {
     textSize(elementSize*2/3)
     fill(0, 0, 100)
 
-    // if the symbol contains a lowercase g, that means it goes under the
-    // baseline. those, we want to display a touch higher.
-    if (selectedElementData["symbol"][1] === "g")
+    // if the symbol contains a lowercase g, y, or p, that means it goes
+    // under the baseline. those, we want to display a touch higher.
+    if (selectedElementData["symbol"][1] === "g" ||
+        selectedElementData["symbol"][1] === "p" ||
+        selectedElementData["symbol"][1] === "y")
         text(selectedElementData["symbol"], imageCenterXPos, imageCenterYPos - 5*elementSize/75)
     else
-        // otherwise, just display it normally.
-        text(selectedElementData["symbol"], imageCenterXPos, imageCenterYPos)
+        // otherwise, just display it normally. note that the center of the
+        // text doesn't align properly so it being a tiny bit higher will
+        // help center it.
+        text(selectedElementData["symbol"], imageCenterXPos, imageCenterYPos - 2*elementSize/75)
     textAlign(LEFT, TOP)
 
     let electrons = selectedElementData["shells"]
