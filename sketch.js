@@ -1000,9 +1000,20 @@ function draw() {
         // element rectangle. the num ionization energies will range anywhere
         // from 0 (transactinoids) to 30 (molybdenum), but luckily we have
         // enough room for that.
+        // we should limit the number of ionization energies to 10
         textSize(15*elementSize/75)
+        if (ionizationEnergies.length > 10) {
+            ionizationEnergies = [
+                ionizationEnergies[0], ionizationEnergies[1],
+                ionizationEnergies[2], ionizationEnergies[3],
+                ionizationEnergies[4], ionizationEnergies[5],
+                ionizationEnergies[6], ionizationEnergies[7],
+                ionizationEnergies[8], ionizationEnergies[9]
+            ]
+        }
         if (ionizationEnergies.length > 0) {
-            text("Ionization energies:\n" + join(ionizationEnergies, "\n"),
+            text("Ionization energies:\n" + join(
+                ionizationEnergies, "\n"),
                 padding, bottomYPos + padding)
         } else {
             text("Ionization energies: null",
