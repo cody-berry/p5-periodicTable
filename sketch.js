@@ -400,24 +400,23 @@ function draw() {
 
     // make the image fade to black by drawing increasingly opaque black-stroked
     // rectangles
-    // the rectangles have a strokeweight that can extend out of the border.
-    // this will be fixed soon. The alpha is designed to increase to 100.
+    // the alpha is designed to increase to 100.
     // the vignette helps white backgrounds blend in with the dark blue
     // background. in some cases it looks weird. note that this might help
     // focus on what is supposed to be focused on, like for Neptunium.
-    let alpha = -80
+    let alpha = -78
     let imageSize = elementSize*2
     let imageCenterXPos = elementSize*6 + 5 + imageSize/2
     let imageCenterYPos = elementSize*1.5 + imageSize/2
     for (let distanceFromImageCenter = 0; distanceFromImageCenter < elementSize; distanceFromImageCenter += elementSize/100) {
         stroke(0, 0, 0, alpha)
-        strokeWeight(6*elementSize/75)
+        strokeWeight(min(6*elementSize/75, (elementSize - distanceFromImageCenter) + 2))
         noFill()
         rect(imageCenterXPos - distanceFromImageCenter,
             imageCenterYPos - distanceFromImageCenter,
             distanceFromImageCenter*2)
 
-        alpha += 1.2
+        alpha += 1.22
     }
 
     noStroke()
@@ -486,7 +485,7 @@ function draw() {
 
     stroke(0, 0, 100)
     noFill()
-    strokeWeight(10)
+    strokeWeight(9*elementSize/75)
     let distFromCenter = 2*elementSize/3
 
     // top electrons: display 1 dot for 1-4 electrons, 2 dots for 5-8 electrons
@@ -807,8 +806,8 @@ function draw() {
         let angleIncrement = PI * (3 - sqrt(5)) // golden angle
         let maxRadius = nucleusDiameter/2 - nucleonDiameter/2
         for (i = 0; i < protons + neutrons; i++) {
-            let angle = angleIncrement*i
             let r = sqrt(i/(protons + neutrons)) * maxRadius
+            let angle = angleIncrement*i + (millis()/10000)*r
             let x = cos(angle) * r + imageMiddleXPos
             let y = sin(angle) * r + imageMiddleYPos
 
@@ -953,19 +952,19 @@ function draw() {
         // rectangles
         // very similar to last time wedisplayed an image and wanted it to
         // fade to black
-        let alpha = -80
+        let alpha = -78
         imageSize = elementSize*3
         let imageCenterXPos = rightXPos + padding + imageSize/2
         let imageCenterYPos = imageSize/2
         for (let distanceFromImageCenter = 0; distanceFromImageCenter < elementSize*1.5; distanceFromImageCenter += 1.5*elementSize/100) {
             stroke(0, 0, 0, alpha)
-            strokeWeight(12*elementSize/75)
+            strokeWeight(min(12*elementSize/75, (elementSize*1.5 - distanceFromImageCenter) + 4))
             noFill()
             rect(imageCenterXPos - distanceFromImageCenter,
                  imageCenterYPos - distanceFromImageCenter,
                  distanceFromImageCenter*2)
 
-            alpha += 1.2
+            alpha += 1.22
         }
 
         // add the summary of the element
@@ -1067,8 +1066,12 @@ function draw() {
     // debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
     // debugCorner.showBottom()
 
-    if (frameCount > 36000)
+    // after 300 seconds (5 minutes), stop the sketch
+    if (frameCount > frameRate()*300) {
         noLoop()
+        instructions.html(`<pre>
+            sketch stopped</pre>`)
+    }
 
     noStroke()
 }
