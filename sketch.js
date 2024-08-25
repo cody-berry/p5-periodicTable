@@ -756,13 +756,15 @@ function draw() {
         let imageBottomYPos = imageTopYPos + squareSize
         let electronDiameter = 8*elementSize/75
         let nucleusDiameter = 80*elementSize/75
-        let orbitalOneDiameter = 100*elementSize/75
-        let orbitalTwoDiameter = 120*elementSize/75
-        let orbitalThreeDiameter = 140*elementSize/75
-        let orbitalFourDiameter = 160*elementSize/75
-        let orbitalFiveDiameter = 180*elementSize/75
-        let orbitalSixDiameter = 200*elementSize/75
-        let orbitalSevenDiameter = 220*elementSize/75
+        let orbitalDiameters = [100*elementSize/75] // all orbital diameters
+        for (let i = 1; i < 7; i++) {
+            // for each orbital after this the number increases by
+            // 20*elementSize/75
+            orbitalDiameters.push(
+                orbitalDiameters[orbitalDiameters.length - 1] +
+                19*elementSize/75
+            )
+        }
         let electronShells = selectedElementData["shells"]
 
         // because the nucleus diameter stays the same but the number of
@@ -833,13 +835,13 @@ function draw() {
         // 4th shell even though there is no 4s shell.
         noFill()
         stroke(0, 0, 100)
-        circle(imageMiddleXPos, imageMiddleYPos, orbitalOneDiameter)
-        if (electronShells.length > 1) circle(imageMiddleXPos, imageMiddleYPos, orbitalTwoDiameter)
-        if (electronShells.length > 2) circle(imageMiddleXPos, imageMiddleYPos, orbitalThreeDiameter)
-        if (electronShells.length > 3) circle(imageMiddleXPos, imageMiddleYPos, orbitalFourDiameter)
-        if (electronShells.length > 4) circle(imageMiddleXPos, imageMiddleYPos, orbitalFiveDiameter)
-        if (electronShells.length > 5) circle(imageMiddleXPos, imageMiddleYPos, orbitalSixDiameter)
-        if (electronShells.length > 6) circle(imageMiddleXPos, imageMiddleYPos, orbitalSevenDiameter)
+        circle(imageMiddleXPos, imageMiddleYPos, orbitalDiameters[0])
+        if (electronShells.length > 1) circle(imageMiddleXPos, imageMiddleYPos, orbitalDiameters[1])
+        if (electronShells.length > 2) circle(imageMiddleXPos, imageMiddleYPos, orbitalDiameters[2])
+        if (electronShells.length > 3) circle(imageMiddleXPos, imageMiddleYPos, orbitalDiameters[3])
+        if (electronShells.length > 4) circle(imageMiddleXPos, imageMiddleYPos, orbitalDiameters[4])
+        if (electronShells.length > 5) circle(imageMiddleXPos, imageMiddleYPos, orbitalDiameters[5])
+        if (electronShells.length > 6) circle(imageMiddleXPos, imageMiddleYPos, orbitalDiameters[6])
 
         // now display each electron as a small yellowish green circle
         let shellNum = 1
@@ -851,30 +853,7 @@ function draw() {
 
         for (let electronsPerShell of electronShells) {
             // first we have to find the orbital diameter
-            let currentOrbitalDiameter = 0
-            switch (shellNum) {
-                case 1:
-                    currentOrbitalDiameter = orbitalOneDiameter
-                    break
-                case 2:
-                    currentOrbitalDiameter = orbitalTwoDiameter
-                    break
-                case 3:
-                    currentOrbitalDiameter = orbitalThreeDiameter
-                    break
-                case 4:
-                    currentOrbitalDiameter = orbitalFourDiameter
-                    break
-                case 5:
-                    currentOrbitalDiameter = orbitalFiveDiameter
-                    break
-                case 6:
-                    currentOrbitalDiameter = orbitalSixDiameter
-                    break
-                case 7:
-                    currentOrbitalDiameter = orbitalSevenDiameter
-                    break
-            }
+            let currentOrbitalDiameter = orbitalDiameters[shellNum - 1]
 
             // electronsPerShell is the number of electrons in the shell
             // n=shellNum. we need to display that many electrons (spread
@@ -1078,7 +1057,7 @@ function draw() {
     // debugCorner.showBottom()
 
     // after 300 seconds (5 minutes), stop the sketch
-    if (frameCount > frameRate()*300) {
+    if (millis() > 300000) {
         noLoop()
         instructions.html(`<pre>
             sketch stopped</pre>`)
