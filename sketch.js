@@ -10,7 +10,7 @@ let variableWidthFont
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 let periodicTableJSON
-let elementSize = 85 // each element is a square. this is the size of it.
+let elementSize = 50 // each element is a square. this is the size of it.
 let selectedElement = 1
 let elementImages = {} // the names are the keys and the images are the values.
 
@@ -536,8 +536,10 @@ function draw() {
     // 100%-opacity white pixels are made, whereas if we don't, a 2xwidth
     // strand of 50%-opacity white pixels are made (because the line spans
     // -0.5 to 0.5, and a fraction of a pixel means a translucent pixel).
-    line(0, elementSize*10 + 4.5, width, elementSize*10 + 4.5)
-    line(0, elementSize*10 + 8.5, width, elementSize*10 + 8.5)
+    line(0, elementSize*10 + int(4*elementSize/75),
+        width, elementSize*10 + int(4*elementSize/75))
+    line(0, elementSize*10 + int(7.5*elementSize/75),
+        width, elementSize*10 + int(7.5*elementSize/75))
 
     // now we display the information for the following things: appearance,
     // average atomic mass, boiling point, melting point, electron
@@ -1118,6 +1120,19 @@ function keyPressed() {
     }
 }
 
+function mouseWheel(event) {
+    if (keyIsDown(17) &&
+        (elementSize > 20 || event.delta < 0) &&
+        (elementSize < 200 || event.delta > 0)) {
+        let scrolls = -event.delta/100
+        elementSize *= 1.2 ** scrolls
+        resizeCanvas(1500*elementSize/75, 900*elementSize/75)
+        print(elementSize)
+        return false
+    } else {
+        if (keyIsDown(17)) return false
+    }
+}
 
 /** 🧹 shows debugging info using text() 🧹 */
 class CanvasDebugCorner {
