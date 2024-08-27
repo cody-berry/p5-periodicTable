@@ -18,6 +18,8 @@ let elementImages = {} // the names are the keys and the images are the values.
 let searchCursor = 0
 let textInSearchBar = "" // this is the actual text inside
 
+let state = "periodic table"
+
 // the num neutrons in each element, including Deuterium
 let numNeutrons = [
     0, 1, 2, 4, 5, 6, 6, 7, 8, 10, 10,
@@ -573,6 +575,11 @@ function draw() {
     if (matches.length === 1) {
         background(234, 34, 24)
 
+        if (state === "periodic table") {
+            state = "single element popup screen"
+            resizeCanvas(1500*elementSize/75, 400*elementSize/75)
+        }
+
         // padding is quite a bit larger in here
         let padding = 8*elementSize/75
 
@@ -811,7 +818,7 @@ function draw() {
         let maxRadius = nucleusDiameter/2 - nucleonDiameter/2
         for (i = 0; i < protons + neutrons; i++) {
             let r = sqrt(i/(protons + neutrons)) * maxRadius
-            let angle = angleIncrement*i + (millis()/10000)*r
+            let angle = angleIncrement*i + (millis()/100)*r/elementSize
             let x = cos(angle) * r + imageMiddleXPos
             let y = sin(angle) * r + imageMiddleYPos
 
@@ -1000,7 +1007,13 @@ function draw() {
             text("Ionization energies: null",
                 padding, bottomYPos + padding)
         }
+    } else {
+        if (state === "single element popup screen") {
+            state = "periodic table"
+            resizeCanvas(1500*elementSize/75, 900*elementSize/75)
+        }
     }
+
 
     // at the top-left we always have the search box.
     // we'll be situating this such that it touches the corner.
@@ -1123,11 +1136,15 @@ function keyPressed() {
 function mouseWheel(event) {
     if (keyIsDown(17) &&
         (elementSize > 20 || event.delta < 0) &&
-        (elementSize < 200 || event.delta > 0)) {
+        (elementSize < 200 || event.delta > 0)) { // scroll up/down, not past a certain limit
         let scrolls = -event.delta/100
         elementSize *= 1.2 ** scrolls
-        resizeCanvas(1500*elementSize/75, 900*elementSize/75)
-        print(elementSize)
+
+        if (state === "periodic table") {
+            // resize the canvas
+            resizeCanvas(1500*elementSize/75, 900*elementSize/75)
+        } else
+            resizeCanvas(1500*elementSize/75, 400*elementSize/75)
         return false
     } else {
         if (keyIsDown(17)) return false
