@@ -10,7 +10,7 @@ let variableWidthFont
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 let periodicTableJSON
-let elementSize = 50 // each element is a square. this is the size of it.
+let elementSize = 75 // each element is a square. this is the size of it.
 let selectedElement = 1
 let elementImages = {} // the names are the keys and the images are the values.
 
@@ -363,7 +363,7 @@ function draw() {
     noStroke()
 
     // however we will need to do some considerations on where to display
-    // newlines. every 100 characters there should be a newline after the
+    // newlines. every 102 characters there should be a newline after the
     // previous word.
     // this is similar to my code from typerc, but with textWidth() instead
     // of using a fixed number of characters. this is effectively the same
@@ -374,9 +374,9 @@ function draw() {
     for (let char of summary) {
         charsSinceLastNewline += 1
 
-        // add a newline at the beginning of the last word for every 100
+        // add a newline at the beginning of the last word for every 102
         // characters. in other words, replace the last space with a newline.
-        if (charsSinceLastNewline === 100) {
+        if (charsSinceLastNewline === 102) {
             let lastIndex = summaryWithNewlines.lastIndexOf(" ")
             summaryWithNewlines =
                 summaryWithNewlines.substring(0, lastIndex) + "\n" +
