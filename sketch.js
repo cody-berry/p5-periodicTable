@@ -10,7 +10,7 @@ let variableWidthFont
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 let periodicTableJSON
-let elementSize = 75 // each element is a square. this is the size of it.
+let elementSize = 60 // each element is a square. this is the size of it.
 let selectedElement = 1
 let elementImages = {} // the names are the keys and the images are the values.
 
@@ -19,6 +19,18 @@ let searchCursor = 0
 let textInSearchBar = "" // this is the actual text inside
 
 let state = "periodic table"
+
+
+// since we have zooming enabled, we need a pattern of different zooms so
+// that we can select a zoom and multiply elementSize by it.
+let elementSizes = [
+    20, 25, 30, 35, 40, 45, 50, 55, 60,
+    66, 75, 85, 100, 115, 135, 160, 200, 250, 310
+]
+let zoomIndex = 9
+elementSize = elementSizes[zoomIndex]
+
+
 
 // the num neutrons in each element, including Deuterium
 let numNeutrons = [
@@ -1134,11 +1146,12 @@ function keyPressed() {
 }
 
 function mouseWheel(event) {
-    if (keyIsDown(17) &&
-        (elementSize > 20 || event.delta < 0) &&
-        (elementSize < 200 || event.delta > 0)) { // scroll up/down, not past a certain limit
-        let scrolls = -event.delta/100
-        elementSize *= 1.2 ** scrolls
+    if (keyIsDown(17)) { // scroll up/down
+        let scrolls = int(-event.delta/50)
+        zoomIndex += scrolls
+        zoomIndex = max(0, min(zoomIndex, 18))
+        elementSize = elementSizes[zoomIndex]
+        print(zoomIndex, scrolls, elementSize)
 
         if (state === "periodic table") {
             // resize the canvas
