@@ -24,10 +24,10 @@ let state = "periodic table"
 // since we have zooming enabled, we need a pattern of different zooms so
 // that we can select a zoom and multiply elementSize by it.
 let elementSizes = [
-    20, 25, 30, 35, 40, 45, 50, 55, 60,
-    66, 75, 85, 100, 115, 135, 160, 200, 250, 310
+    15, 20, 24, 30, 36, 42, 48, 54, 60,
+    66, 75, 90, 120, 150, 180, 240, 310
 ]
-let zoomIndex = 9
+let zoomIndex = 8
 elementSize = elementSizes[zoomIndex]
 
 
@@ -123,7 +123,8 @@ function setup() {
     instructions = select('#ins')
     instructions.html(`<pre>
         numpad 1 → freeze sketch
-        Note: Auto-sketchfreeze designed for quick usages of no more than 10 minutes.</pre>`)
+        Note: Auto-sketchfreeze designed for quick usages of no more than 10 minutes.
+        Zoom: 100%</pre>`)
 
     debugCorner = new CanvasDebugCorner(5)
     frameRate(60)
@@ -1149,7 +1150,7 @@ function mouseWheel(event) {
     if (keyIsDown(17)) { // scroll up/down
         let scrolls = int(-event.delta/50)
         zoomIndex += scrolls
-        zoomIndex = max(0, min(zoomIndex, 18))
+        zoomIndex = max(0, min(zoomIndex, 16))
         elementSize = elementSizes[zoomIndex]
         print(zoomIndex, scrolls, elementSize)
 
@@ -1158,6 +1159,11 @@ function mouseWheel(event) {
             resizeCanvas(1500*elementSize/75, 900*elementSize/75)
         } else
             resizeCanvas(1500*elementSize/75, 400*elementSize/75)
+
+        instructions.html(`<pre>
+numpad 1 → freeze sketch
+Note: Auto-sketchfreeze designed for quick usages of no more than 5 minutes.
+Zoom: ${elementSize/60*100}%</pre>`)
         return false
     } else {
         if (keyIsDown(17)) return false
